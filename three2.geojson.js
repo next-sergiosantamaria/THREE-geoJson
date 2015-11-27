@@ -84,8 +84,9 @@ function init() {
 		cameraTarget = { 'x': -120,'y': 0, 'z': -80};
 	}
 	else{ 
-		camera.position.set( 0, 0, 0 );
-
+		cameraPositionPan = { 'x': -119, 'y': 584, 'z': -79 }; //camera.position.set( 142, 0, 422 );
+		cameraPositionSide = { 'x': 326, 'y': 58, 'z': 16 };
+		cameraTarget = { 'x': -120,'y': 0, 'z': -80};
 	}
 
 	camera.position.set( cameraPositionPan.x, cameraPositionPan.y, cameraPositionPan.z );
@@ -174,6 +175,8 @@ function buildShape(){
 				var color = new THREE.Color("rgb(255,255,255)");
 
 				addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1 );
+
+				console.log(json.features[s].properties.admin);
 			}
 		}
 		setTimeout(function(){ buildShape(); }, 100);
@@ -298,7 +301,7 @@ function changeView(value){
 
 		$('#selectAmount').removeClass('transparetBack');
 		$('#selectColor').removeClass('transparetBack');
-		
+
 		removeLights();
 		changeColor('age');
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
@@ -433,6 +436,7 @@ function changeAmount(value){
 	var len = group.children.length;
 	for(var a = 0; a<len; a++){
 		var altura = Math.floor((Math.random() * 20) + 1);
+		if(actualCity == 'europe') altura = altura * 100;
 		movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': altura*actualAmount }, group.children[a].scale, 0, 1000);
 	}
 	//movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': actualAmount }, mesh.scale, 0, 1000);
