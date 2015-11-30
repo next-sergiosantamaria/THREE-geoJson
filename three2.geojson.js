@@ -10,6 +10,8 @@ var clock = new THREE.Clock();
 
 var actualCity, actualAmount = 1;
 
+var reScaleGroup = 1;
+
 var lightGroup = new THREE.Object3D();
 
 var cameraPositionPan, cameraPositionSide, cameraTarget;
@@ -44,11 +46,11 @@ function init() {
 
 	scene = new THREE.Scene();
 
-	/*var boxgeometry = new THREE.BoxGeometry(5,5,5);
+	var boxgeometry = new THREE.BoxGeometry(5,5,5);
 	var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
 	var box = new THREE.Mesh( boxgeometry, boxmaterial );
-	box.position.set(35, 0, -20);
-	scene.add(box);*/
+	box.position.set( 100, 0, 4);
+	scene.add(box);
 
 	camera = new THREE.PerspectiveCamera( 50, (width/height), 0.1, 10000000 );
 	//camera.position.set( -20, -14, 177 );
@@ -83,6 +85,12 @@ function init() {
 		cameraPositionSide = { 'x': 326, 'y': 58, 'z': 16 };
 		cameraTarget = { 'x': -120,'y': 0, 'z': -80};
 	}
+
+	else if(actualCity == 'spain') {
+		cameraPositionPan = { 'x': 10, 'y': 629, 'z': -46 }; //camera.position.set( 142, 0, 422 );
+		cameraPositionSide = { 'x': 314762, 'y': 1414572, 'z': -13590202  };
+		cameraTarget = { 'x': 100,'y': 0, 'z': 4};
+	}
 	else{ 
 		cameraPositionPan = { 'x': -119, 'y': 584, 'z': -79 }; //camera.position.set( 142, 0, 422 );
 		cameraPositionSide = { 'x': 326, 'y': 58, 'z': 16 };
@@ -113,7 +121,9 @@ function init() {
 }
 
 function buildShape(){
-	log("buildShape ("+shapeCount+"/"+json.features.length+")");
+	log("buildShape ("+shapeCount+"/"+json.features.length+") "+actualCity);
+	if(actualCity == 'europe' || actualCity == 'spain') var numberOfParticles = 10;
+	else var numberOfParticles = 3;
 	if(shapeCount<json.features.length){
 		var shapeSession = 0;
 		var parseCoordinates = {"x": (json.features[0].geometry.coordinates[0][0][0]).toFixed(2), "y": (json.features[0].geometry.coordinates[0][0][1]).toFixed(2)};
@@ -124,59 +134,61 @@ function buildShape(){
 			var points = [];
 			if(json.features[s].geometry.coordinates.length<1 || json.features[s].geometry.coordinates[0]<1){
 				good = false;
-				console.log('es false');
+				console.log('wrong coordinates: '+json.features[s].properties.name);
 			}else{
-				for(var i = 0; i<json.features[s].geometry.coordinates[0].length; i++){
-					if(json.features[s].geometry.coordinates[0][i][0] && json.features[s].geometry.coordinates[0][i][1] && json.features[s].geometry.coordinates[0][i][0]>0 && json.features[s].geometry.coordinates[0][i][1]>0){
-						points.push( new THREE.Vector2 ( translateLat(json.features[s].geometry.coordinates[0][i][0], parseCoordinates.x ), translateLng(json.features[s].geometry.coordinates[0][i][1], parseCoordinates.y )));
-						if(i<3){
-							lightpoints.push( { 'x': json.features[s].geometry.coordinates[0][i][0], 'y': json.features[s].geometry.coordinates[0][i][1] });		
-						} 
-					}else{
-						good = false;
-						console.log('es false');
+				if(json.features[s].geometry.type == 'Polygon'){
+					for(var i = 0; i<json.features[s].geometry.coordinates[0].length; i++){
+						if(json.features[s].geometry.coordinates[0][i][0] && json.features[s].geometry.coordinates[0][i][1]){
+						//if(json.features[s].geometry.coordinates[0][i][0] && json.features[s].geometry.coordinates[0][i][1] && json.features[s].geometry.coordinates[0][i][0]>0 && json.features[s].geometry.coordinates[0][i][1]>0){
+							points.push( new THREE.Vector2 ( translateLat(json.features[s].geometry.coordinates[0][i][0], parseCoordinates.x ), translateLng(json.features[s].geometry.coordinates[0][i][1], parseCoordinates.y )));
+							if(i<numberOfParticles){
+								lightpoints.push( { 'x': json.features[s].geometry.coordinates[0][i][0], 'y': json.features[s].geometry.coordinates[0][i][1] });		
+							} 
+						}else{
+							good = false;
+							console.log('wrong coordinates: '+json.features[s].properties.name);
+						}
+					}
+					if(good){	
+						var h = heightFn(0.1);
+						var z = ((h/max)*z_max);
+						if(!z || z<1){z = 0;}
+						var red = Math.round((h/max)*255.0);
+						var blue = Math.round(255.0-(h/max)*255.0);
+						//var color = new THREE.Color("rgb("+red+",0,"+blue+")");
+						var color = new THREE.Color("rgb(255,255,255)");
+						addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1 );
 					}
 				}
-			}
-			if(good){
-				var h = heightFn(0.1);
-				if(isNaN(parseFloat(0.1))){
-					if(fast){
-						good = false;
-						console.log('es false');
+				else if(json.features[s].geometry.type == 'MultiPolygon'){
+					for(var d = 0; d < json.features[s].geometry.coordinates.length; d++){
+						for(var r = 0; r < json.features[s].geometry.coordinates[d].length; r++){
+								var points = [];
+								for(var t = 0; t < json.features[s].geometry.coordinates[d][r].length; t++){
+										if(json.features[s].geometry.coordinates[d][r][t][0] && json.features[s].geometry.coordinates[d][r][t][0]){
+										//if(json.features[s].geometry.coordinates[0][i][0] && json.features[s].geometry.coordinates[0][i][1] && json.features[s].geometry.coordinates[0][i][0]>0 && json.features[s].geometry.coordinates[0][i][1]>0){
+											points.push( new THREE.Vector2 ( translateLat(json.features[s].geometry.coordinates[d][r][t][0], parseCoordinates.x ), translateLng(json.features[s].geometry.coordinates[d][r][t][1], parseCoordinates.y )));
+											if(t<numberOfParticles){
+												lightpoints.push( { 'x': json.features[s].geometry.coordinates[d][r][t][0], 'y': json.features[s].geometry.coordinates[d][r][t][1] });		
+											} 
+										}else{
+											good = false;
+											console.log('wrong coordinates: '+json.features[s].properties.name);
+										}
+								}
+								if(good){	
+									var h = heightFn(0.1);
+									var z = ((h/max)*z_max);
+									if(!z || z<1){z = 0;}
+									var red = Math.round((h/max)*255.0);
+									var blue = Math.round(255.0-(h/max)*255.0);
+									//var color = new THREE.Color("rgb("+red+",0,"+blue+")");
+									var color = new THREE.Color("rgb(255,255,255)");
+									addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1 );
+								}
+							}
 					}
-					h = 0;
 				}
-				
-				if(!h || h < 0){
-					if(fast){
-						good = false;
-						console.log('es false');
-					}
-					h = 0;
-				}
-
-				if(h>max){
-					h = max;
-				}
-
-				if(h==0 && fast){
-					good = false;
-					console.log('es false');
-				}
-			}
-
-			if(good){
-				var z = ((h/max)*z_max);
-				if(!z || z<1){z = 0;}
-				var red = Math.round((h/max)*255.0);
-				var blue = Math.round(255.0-(h/max)*255.0);
-				//var color = new THREE.Color("rgb("+red+",0,"+blue+")");
-				var color = new THREE.Color("rgb(255,255,255)");
-
-				addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1 );
-
-				console.log(json.features[s].properties.admin);
 			}
 		}
 		setTimeout(function(){ buildShape(); }, 100);
@@ -184,6 +196,12 @@ function buildShape(){
 	}else{
 
 		scene.add(group);
+
+		/*var boxgeometry = new THREE.BoxGeometry(5,5,5);
+		var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
+		var box = new THREE.Mesh( boxgeometry, boxmaterial );
+		box.position.set(0, 180,150);
+		scene.add(box);*/
 		
 		var directionalLight = new THREE.DirectionalLight(0xeeeeee, 1);
 		directionalLight.position.set(0, 180,150);
@@ -222,6 +240,9 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s ) {
 		bevelEnabled	: false
 	};
 
+	if(actualCity == 'spain') reScaleGroup = 1000;
+	else reScaleGroup = 1;
+
 	var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
 	for(var f = 0; f<geometry.faces.length; f++){
@@ -248,7 +269,7 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s ) {
 	mesh = new THREE.Mesh( geometry, material );
 	mesh.position.set( 0,0,0 );
 	//mesh.rotation.set( r, 0, 0 );
-	mesh.scale.set(scale_factor * scale_x,scale_factor * scale_y, actualAmount);
+	mesh.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);
 	mesh.castShadow = true;
 	mesh.receiveShadow = true;
 
@@ -266,6 +287,7 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s ) {
 
 	//groupGeometry.merge( geometry, geometry.matrix );
 }
+
 
 function changeView(value){
 	var timeElapsed = 1000;
@@ -289,7 +311,7 @@ function changeView(value){
 		//changeOpacity('white');
 		movement({ 'x': cameraPositionSide.x, 'y': cameraPositionSide.y, 'z': cameraPositionSide.z }, camera.position, 0, timeElapsed*2); //camera.position.set( -24, -164, 59 );
 		//console.log(mesh);
-		movement( { 'x': scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': 0.1 }, group.scale, 0, timeElapsed);
+		movement( { 'x': scale_factor * scale_x*reScaleGroup, 'y': scale_factor * scale_y*reScaleGroup, 'z': 0.1 }, group.scale, 0, timeElapsed);
 		//movement( { 'opacity': 0 }, mesh.material.materials[0], 0, timeElapsed);
 		setTimeout(addSpritesImages,2000);	
 	}
@@ -347,13 +369,18 @@ function addSpritesImages(){
 
 	///////////////////////////////////////////////////////////////
 
+	var sizepotenciator = 1;
+
 	var texturesArray = ['Smoke/Plume.png','Rays/laser1.png', 'Glows/Flare5.png', 'Glows/Flare4.png', 'Glows/glow.png']
 	//console.log(lightpoints, lightpoints.length);
 	lightGroup.name = 'luces';
 
 	var len = group.children.length;
 
-	console.log(group.children.length);
+	if(actualCity == 'europe') { particleHigh = particleHigh * 100; sizepotenciator = 100; console.log('actual city is: '+actualCity);}
+	else if(actualCity == 'spain') { particleHigh = particleHigh * 1500; sizepotenciator = 1500; console.log('actual city is: '+actualCity);}
+
+	//console.log(group.children.length);
 
 	for(var a = 0; a<len; a++){
 		for(var e = 0; e<group.children[a].geometry.vertices.length; e = e+5){
@@ -372,8 +399,8 @@ function addSpritesImages(){
 			var spriteMaterialGlass = new THREE.SpriteMaterial( 
 		        { map: textureGlass, color: 'rgb(255,'+particleColor+', 0)', transparent : true, opacity: particleOpacity } );
 		    var spriteGlass = new THREE.Sprite( spriteMaterialGlass );
-		    	spriteGlass.scale.set((particlesize/2)*3,particlesize*particleHigh,particlesize);
-		    	spriteGlass.position.set( group.children[a].geometry.vertices[e].x*435, group.children[a].geometry.vertices[e].y*1220, (particlesize/2)*particleHigh );
+	  			spriteGlass.scale.set((particlesize/2)*3*sizepotenciator,particlesize*particleHigh*sizepotenciator,particlesize*sizepotenciator);
+		    	spriteGlass.position.set( group.children[a].geometry.vertices[e].x*435, group.children[a].geometry.vertices[e].y*1220, (particlesize/2)*particleHigh*sizepotenciator );
 				
 		    lightGroup.add(spriteGlass);
 
@@ -392,12 +419,16 @@ function addSpritesImages(){
 
 function addSpritesNodes(dist, point){
 
+	var sizepotenciator = 1;
+
 	var texturesArray = ['Smoke/Plume.png','Rays/laser1.png', 'Glows/Flare5.png', 'Glows/Flare4.png', 'Glows/glow.png'];
 
 	lightGroup.name = 'luces';
 
 	if(texturesArray[dist%3] == 'Rays/laser1.png') var particleHigh = 4;
 	else var particleHigh = 1;
+
+	if(actualCity == 'europe') { particleHigh = particleHigh * 1000000; sizepotenciator = 1000000; console.log('actual city is: '+actualCity);};
 
 	//var particleHigh = 1;
 
@@ -410,7 +441,7 @@ function addSpritesNodes(dist, point){
 	var spriteMaterialGlass = new THREE.SpriteMaterial( 
 	       { map: textureGlass, color: 'rgb(255,'+particleColor+', 0)', transparent : true, opacity: particleOpacity } );
 	var spriteGlass = new THREE.Sprite( spriteMaterialGlass );
-	  	spriteGlass.scale.set((particlesize/2)*3,particlesize*particleHigh,particlesize);
+	  	spriteGlass.scale.set((particlesize/2)*3*sizepotenciator,particlesize*particleHigh*sizepotenciator,particlesize*sizepotenciator);
 	   	spriteGlass.position.set( group.children[dist].geometry.vertices[point].x*435, group.children[dist].geometry.vertices[point].y*1220, (particlesize/2)*particleHigh );
 				
 	lightGroup.add(spriteGlass);
@@ -436,8 +467,8 @@ function changeAmount(value){
 	var len = group.children.length;
 	for(var a = 0; a<len; a++){
 		var altura = Math.floor((Math.random() * 20) + 1);
-		if(actualCity == 'europe') altura = altura * 100;
-		movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': altura*actualAmount }, group.children[a].scale, 0, 1000);
+		if(actualCity == 'europe') altura = altura * 300;
+		movement( { 'x':group.children[a].scale.x, 'y': group.children[a].scale.y, 'z': altura*actualAmount }, group.children[a].scale, 0, 1000);
 	}
 	//movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': actualAmount }, mesh.scale, 0, 1000);
 }
