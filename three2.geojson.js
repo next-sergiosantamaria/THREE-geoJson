@@ -378,7 +378,7 @@ function addSpritesImages(){
 	var len = group.children.length;
 
 	if(actualCity == 'europe') { particleHigh = particleHigh * 100; sizepotenciator = 100; console.log('actual city is: '+actualCity);}
-	else if(actualCity == 'spain') { particleHigh = particleHigh * 1500; sizepotenciator = 1500; console.log('actual city is: '+actualCity);}
+	else if(actualCity == 'spain') { particleHigh = particleHigh * 2000; sizepotenciator = 2000; console.log('actual city is: '+actualCity);}
 
 	//console.log(group.children.length);
 
