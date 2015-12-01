@@ -40,13 +40,17 @@
 			    <label for="amountAge">Age</label>
 			    <input id="amountIncomes" type="radio" name="dataAmount" onchange="changeAmount('incomes')" value="amountIncomes">
 			    <label for="amountIncomes">Incomes</label>
+			    <input id="amountNone" type="radio" name="dataAmount" onchange="changeAmount('none')" value="amountNone">
+			    <label for="amountNone">None</label>
 			</div>
 			<div class="countrySelectTitle"><b>Select data for color: </b></div>
 			<div id="selectColor" class="countrySelectList">
 				<input id="colorAge" type="radio" name="datacolor" onchange="changeColor('age')" value="colorAge">
-			    <label for="colorAge">age</label>
+			    <label for="colorAge">Age</label>
 			    <input id="colorIncome" type="radio" name="datacolor" onchange="changeColor('incomes')" value="colorIncome">
 			    <label for="colorIncome">Incomes</label>
+			     <input id="colorNone" type="radio" name="datacolor" onchange="changeColor('white')" value="colorNone">
+			    <label for="colorNone">None</label>
 			</div>
 			<div class="countrySelectTitle"><b>Select view: </b></div>
 			<div class="countrySelectList">
@@ -115,12 +119,15 @@
 					Unremove();
 
 					if(firstCharge != 0){
-						var object = scene.getObjectByName( "meshing" );
+						var object = scene.getObjectByName( "structure" );
+						var luzD = scene.getObjectByName("luzDireccional");
 						scene.remove(object);
-						$("canvas").remove();	
+						scene.remove(luzD);
+						$("canvas").remove();
 					}
-					firstCharge = firstCharge+1;
 					setTimeout(function(){generateMap(value)}, 2000);
+
+					firstCharge = firstCharge+1;
 					//setTimeout(generateMap,2000);
 				},
 				translateLat = function(lat, value){
