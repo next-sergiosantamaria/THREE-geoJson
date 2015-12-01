@@ -212,14 +212,14 @@ function buildShape(){
 
 		scene.add(group);
 
-		/*var boxgeometry = new THREE.BoxGeometry(5,5,5);
+		var boxgeometry = new THREE.BoxGeometry(5,5,5);
 		var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
 		var box = new THREE.Mesh( boxgeometry, boxmaterial );
-		box.position.set( 70, 10, -20 );
-		scene.add(box);*/
+		box.position.set( 0, 150,-250 );
+		scene.add(box);
 		
 		var directionalLight = new THREE.DirectionalLight(0xeeeeee, 1);
-		directionalLight.position.set(0, 180,150);
+		directionalLight.position.set(0, 150,-250);
 		directionalLight.target = mesh;
 		directionalLight.castShadow = true;
 		directionalLight.shadowDarkness = 0.5;
