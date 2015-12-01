@@ -15,10 +15,14 @@
 		<div class="controlPanel">
 			<div class="countrySelectTitle"><b>Select country: </b></div>
 			<div class="countrySelectList">
-				<input id="berlin" type="radio" name="city" onchange="changeCity('berlin');" value="berlin">
+			    <input id="wrl" type="radio" name="city" onchange="changeCity('world');" value="world">
+			    <label for="wrl">World &nbsp&nbsp</label>
+			    <input id="eu" type="radio" name="city" onchange="changeCity('europe');" value="europe">
+			    <label for="eu">Europe&nbsp</label>
+			    <input id="sp" type="radio" name="city" onchange="changeCity('spain');" value="spain">
+			    <label for="sp">Spain &nbsp&nbsp&nbsp</label>
+				<!--<input id="berlin" type="radio" name="city" onchange="changeCity('berlin');" value="berlin">
 			    <label for="berlin">Berlin &nbsp&nbsp&nbsp</label>
-			    <input id="abu" type="radio" name="city" onchange="changeCity('abudhabi');" value="abudhabi">
-			    <label for="abu">Abu Dhabi</label>
 			    <input id="mad" type="radio" name="city" onchange="changeCity('madrid');" value="madrid">
 			    <label for="mad">Madrid &nbsp</label>
 			    <input id="vie" type="radio" name="city" onchange="changeCity('viena');" value="viena">
@@ -26,11 +30,9 @@
 			    <input id="bru" type="radio" name="city" onchange="changeCity('bruselas');" value="bruselas">
 			    <label for="bru">Bruselas</label>
 			    <input id="pra" type="radio" name="city" onchange="changeCity('praga');" value="praga">
-			    <label for="pra">Praga</label>
-			    <input id="eu" type="radio" name="city" onchange="changeCity('europe');" value="europe">
-			    <label for="eu">Europe&nbsp</label>
-			    <input id="sp" type="radio" name="city" onchange="changeCity('spain');" value="spain">
-			    <label for="sp">World</label>
+			    <label for="pra">Praga</label>-->
+			    <input id="abu" type="radio" name="city" onchange="changeCity('abudhabi');" value="abudhabi">
+			    <label for="abu">Madrid</label>
 			</div>
 			<div class="countrySelectTitle"><b>Select data for amount: </b></div>
 			<div id="selectAmount" class="countrySelectList">
@@ -83,7 +85,7 @@
 				offset_y = 59,
 				offset_z = 0,
 				r = 0,
-				scale_x = 209,
+				scale_x = 350,
 				scale_y = 350,
 				scale_factor = 0.1,
 				heightScaler = 0.5,

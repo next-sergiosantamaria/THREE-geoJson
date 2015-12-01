@@ -46,19 +46,19 @@ function init() {
 
 	scene = new THREE.Scene();
 
-	var boxgeometry = new THREE.BoxGeometry(5,5,5);
+	/*var boxgeometry = new THREE.BoxGeometry(5,5,5);
 	var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
 	var box = new THREE.Mesh( boxgeometry, boxmaterial );
 	box.position.set( 100, 0, 4);
-	scene.add(box);
+	scene.add(box);*/
 
 	camera = new THREE.PerspectiveCamera( 50, (width/height), 0.1, 10000000 );
 	//camera.position.set( -20, -14, 177 );
 
 	if(actualCity == 'abudhabi') {
-		cameraPositionPan = { 'x': 51, 'y': 184, 'z': -26 }; //camera.position.set( 51, 184, -26 );
-		cameraPositionSide = { 'x': 4449, 'y': 580, 'z': -2326 };
-		cameraTarget = { 'x': 35,'y': 0, 'z': -20};
+		cameraPositionPan = { 'x': 78, 'y': 195, 'z': 71 }; //camera.position.set( 51, 184, -26 );
+		cameraPositionSide = { 'x': 664, 'y': 797, 'z': -7735 };
+		cameraTarget = { 'x': 70,'y': 0, 'z': -20};
 	}
 	else if(actualCity == 'berlin') {
 		cameraPositionPan = { 'x': 199, 'y': 634, 'z': 80 }; //camera.position.set( 205, 669, -46 );
@@ -86,10 +86,20 @@ function init() {
 		cameraTarget = { 'x': -120,'y': 0, 'z': -80};
 	}
 
-	else if(actualCity == 'spain') {
-		cameraPositionPan = { 'x': 10, 'y': 629, 'z': -46 }; //camera.position.set( 142, 0, 422 );
-		cameraPositionSide = { 'x': 314762, 'y': 1414572, 'z': -13590202  };
+	else if(actualCity == 'world') {
+		cameraPositionPan = { 'x': 90, 'y': 730, 'z': -277 }; //camera.position.set( 142, 0, 422 );
+		cameraPositionSide = { 'x': 582419, 'y': 2617832, 'z': -25150273  };
 		cameraTarget = { 'x': 100,'y': 0, 'z': 4};
+	}
+	else if(actualCity == 'europe') {
+		cameraPositionPan = { 'x': 0, 'y': 467, 'z': -191 }; //camera.position.set( 142, 0, 422 );
+		cameraPositionSide = { 'x': 61839393, 'y': 205306819, 'z': -1184842018  };
+		cameraTarget = { 'x': -10,'y': 0, 'z': -50};
+	}
+	else if(actualCity == 'spain') {
+		cameraPositionPan = { 'x': 170, 'y': 494, 'z': -182 }; //camera.position.set( 142, 0, 422 );
+		cameraPositionSide = { 'x': 44648199, 'y': 120549732, 'z': -1209962084  };
+		cameraTarget = { 'x': 150,'y': 0, 'z': 50};
 	}
 	else{ 
 		cameraPositionPan = { 'x': -119, 'y': 584, 'z': -79 }; //camera.position.set( 142, 0, 422 );
@@ -122,11 +132,13 @@ function init() {
 
 function buildShape(){
 	log("buildShape ("+shapeCount+"/"+json.features.length+") "+actualCity);
-	if(actualCity == 'europe' || actualCity == 'spain') var numberOfParticles = 10;
+	if(actualCity != 'abudhabi') var numberOfParticles = 10;
 	else var numberOfParticles = 3;
 	if(shapeCount<json.features.length){
+		console.log(json.features[0].geometry.coordinates[0]);
 		var shapeSession = 0;
-		var parseCoordinates = {"x": (json.features[0].geometry.coordinates[0][0][0]).toFixed(2), "y": (json.features[0].geometry.coordinates[0][0][1]).toFixed(2)};
+		if(actualCity == 'spain' || actualCity == 'europe') var parseCoordinates = {"x": (json.features[0].geometry.coordinates[0][0][0][0]).toFixed(2), "y": (json.features[0].geometry.coordinates[0][0][0][1]).toFixed(2)};
+		else var parseCoordinates = {"x": (json.features[0].geometry.coordinates[0][0][0]).toFixed(2), "y": (json.features[0].geometry.coordinates[0][0][1]).toFixed(2)};
 		for(var s = shapeCount; s < json.features.length && shapeSession < subset_size; s++){
 			shapeSession++;
 			shapeCount++;
@@ -159,6 +171,8 @@ function buildShape(){
 						var color = new THREE.Color("rgb(255,255,255)");
 						addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1 );
 					}
+
+				console.log(lightpoints);	
 				}
 				else if(json.features[s].geometry.type == 'MultiPolygon'){
 					for(var d = 0; d < json.features[s].geometry.coordinates.length; d++){
@@ -188,6 +202,7 @@ function buildShape(){
 								}
 							}
 					}
+				console.log(lightpoints);	
 				}
 			}
 		}
@@ -200,7 +215,7 @@ function buildShape(){
 		/*var boxgeometry = new THREE.BoxGeometry(5,5,5);
 		var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
 		var box = new THREE.Mesh( boxgeometry, boxmaterial );
-		box.position.set(0, 180,150);
+		box.position.set( 70, 10, -20 );
 		scene.add(box);*/
 		
 		var directionalLight = new THREE.DirectionalLight(0xeeeeee, 1);
@@ -240,7 +255,8 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s ) {
 		bevelEnabled	: false
 	};
 
-	if(actualCity == 'spain') reScaleGroup = 1000;
+	if(actualCity == 'europe' || actualCity == 'spain') reScaleGroup = 100000;
+	else if(actualCity == 'world') reScaleGroup = 1000;
 	else reScaleGroup = 1;
 
 	var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -377,8 +393,8 @@ function addSpritesImages(){
 
 	var len = group.children.length;
 
-	if(actualCity == 'europe') { particleHigh = particleHigh * 100; sizepotenciator = 100; console.log('actual city is: '+actualCity);}
-	else if(actualCity == 'spain') { particleHigh = particleHigh * 2000; sizepotenciator = 2000; console.log('actual city is: '+actualCity);}
+	if(actualCity == 'europe' || actualCity == 'spain' ) { particleHigh = particleHigh * 200000; sizepotenciator = 200000; console.log('actual city is: '+actualCity);}
+	else if(actualCity == 'world') { particleHigh = particleHigh * 2000; sizepotenciator = 2000; console.log('actual city is: '+actualCity);}
 
 	//console.log(group.children.length);
 
@@ -400,7 +416,7 @@ function addSpritesImages(){
 		        { map: textureGlass, color: 'rgb(255,'+particleColor+', 0)', transparent : true, opacity: particleOpacity } );
 		    var spriteGlass = new THREE.Sprite( spriteMaterialGlass );
 	  			spriteGlass.scale.set((particlesize/2)*3*sizepotenciator,particlesize*particleHigh*sizepotenciator,particlesize*sizepotenciator);
-		    	spriteGlass.position.set( group.children[a].geometry.vertices[e].x*435, group.children[a].geometry.vertices[e].y*1220, (particlesize/2)*particleHigh*sizepotenciator );
+		    	spriteGlass.position.set( group.children[a].geometry.vertices[e].x*1220, group.children[a].geometry.vertices[e].y*1220, (particlesize/2)*particleHigh*sizepotenciator );
 				
 		    lightGroup.add(spriteGlass);
 
@@ -467,7 +483,7 @@ function changeAmount(value){
 	var len = group.children.length;
 	for(var a = 0; a<len; a++){
 		var altura = Math.floor((Math.random() * 20) + 1);
-		if(actualCity == 'europe') altura = altura * 300;
+		//if(actualCity == 'europe' ) altura = altura * 300;
 		movement( { 'x':group.children[a].scale.x, 'y': group.children[a].scale.y, 'z': altura*actualAmount }, group.children[a].scale, 0, 1000);
 	}
 	//movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': actualAmount }, mesh.scale, 0, 1000);
