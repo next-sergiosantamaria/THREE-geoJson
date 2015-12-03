@@ -1,5 +1,5 @@
 //Globals
-var json, camera, scene, renderer, mesh, group, groupGeometry, mouse, controls,
+var json, camera, scene, renderer, mesh, group, groupGeometry, mouse, gometryLenth, controls,
 	fast = false, 
 	width = window.innerWidth, 
 	height = window.innerHeight;
@@ -17,6 +17,11 @@ var lightGroup = new THREE.Object3D();
 var cameraPositionPan, cameraPositionSide, cameraTarget;
 
 var shapeCount = 0, shapes = [], subset_size = 5000;
+
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2(),
+	offset = new THREE.Vector3(),
+	INTERSECTED, SELECTED, plane;
 
 //generateMap();	
 
@@ -122,11 +127,28 @@ function init() {
 	//group.position.z = 0;
 	scene.add( group );
 	groupGeometry = new THREE.Geometry();
-
 	
 	log("initiation done");
 
+	plane = new THREE.Mesh(
+		new THREE.PlaneBufferGeometry( 2000, 2000, 8, 8 ),
+		new THREE.MeshBasicMaterial( { visible: false } )
+	);
+
+	plane.rotation.x = Math.PI / 2;
+	plane.rotation.y = Math.PI;
+	plane.name = 'plano';
+
+	scene.add( plane );
+
 	buildShape();
+
+	renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+	renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+
+	//
+	window.addEventListener( 'resize', onWindowResize, false );
 
 }
 
@@ -138,17 +160,19 @@ function buildShape(){
 		var shapeSession = 0;
 		if(actualCity == 'spain' || actualCity == 'europe') var parseCoordinates = {"x": (json.features[0].geometry.coordinates[0][0][0][0]).toFixed(2), "y": (json.features[0].geometry.coordinates[0][0][0][1]).toFixed(2)};
 		else var parseCoordinates = {"x": (json.features[0].geometry.coordinates[0][0][0]).toFixed(2), "y": (json.features[0].geometry.coordinates[0][0][1]).toFixed(2)};
+
 		for(var s = shapeCount; s < json.features.length && shapeSession < subset_size; s++){
 			shapeSession++;
 			shapeCount++;
 			var good = true;
 			var points = [];
+			gometryLenth = json.features[s].geometry.coordinates[0].length;
 			if(json.features[s].geometry.coordinates.length<1 || json.features[s].geometry.coordinates[0]<1){
 				good = false;
 				console.log('wrong coordinates: '+json.features[s].properties.name);
 			}else{
 				if(json.features[s].geometry.type == 'Polygon'){
-					for(var i = 0; i<json.features[s].geometry.coordinates[0].length; i++){
+					for(var i = 0; i<gometryLenth; i++){
 						if(json.features[s].geometry.coordinates[0][i][0] && json.features[s].geometry.coordinates[0][i][1]){
 						//if(json.features[s].geometry.coordinates[0][i][0] && json.features[s].geometry.coordinates[0][i][1] && json.features[s].geometry.coordinates[0][i][0]>0 && json.features[s].geometry.coordinates[0][i][1]>0){
 							points.push( new THREE.Vector2 ( translateLat(json.features[s].geometry.coordinates[0][i][0], parseCoordinates.x ), translateLng(json.features[s].geometry.coordinates[0][i][1], parseCoordinates.y )));
@@ -160,7 +184,7 @@ function buildShape(){
 							console.log('wrong coordinates: '+json.features[s].properties.name);
 						}
 					}
-					if(good){	
+					if(good){
 						var h = heightFn(0.1);
 						var z = ((h/max)*z_max);
 						if(!z || z<1){z = 0;}
@@ -168,7 +192,7 @@ function buildShape(){
 						var blue = Math.round(255.0-(h/max)*255.0);
 						//var color = new THREE.Color("rgb("+red+",0,"+blue+")");
 						var color = new THREE.Color("rgb(255,255,255)");
-						addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1 );
+						addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1, json.features[s].properties.name );
 					}	
 				}
 				else if(json.features[s].geometry.type == 'MultiPolygon'){
@@ -176,7 +200,7 @@ function buildShape(){
 						for(var r = 0; r < json.features[s].geometry.coordinates[d].length; r++){
 								var points = [];
 								for(var t = 0; t < json.features[s].geometry.coordinates[d][r].length; t++){
-										if(json.features[s].geometry.coordinates[d][r][t][0] && json.features[s].geometry.coordinates[d][r][t][0]){
+										if(json.features[s].geometry.coordinates[d][r][t][0] && json.features[s].geometry.coordinates[d][r][t][1]){
 										//if(json.features[s].geometry.coordinates[0][i][0] && json.features[s].geometry.coordinates[0][i][1] && json.features[s].geometry.coordinates[0][i][0]>0 && json.features[s].geometry.coordinates[0][i][1]>0){
 											points.push( new THREE.Vector2 ( translateLat(json.features[s].geometry.coordinates[d][r][t][0], parseCoordinates.x ), translateLng(json.features[s].geometry.coordinates[d][r][t][1], parseCoordinates.y )));
 											if(t<numberOfParticles){
@@ -195,7 +219,7 @@ function buildShape(){
 									var blue = Math.round(255.0-(h/max)*255.0);
 									//var color = new THREE.Color("rgb("+red+",0,"+blue+")");
 									var color = new THREE.Color("rgb(255,255,255)");
-									addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1 );
+									addShape( new THREE.Shape( points ), z*z_rel, color, 0, 50, 0, r, 0, 0, 1, json.features[s].properties.name );
 								}
 							}
 					}	
@@ -242,7 +266,7 @@ function buildShape(){
 	}
 }
 
-function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s ) {
+function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s, name ) {
 
 	var extrudeSettings = {
 		amount			: extrude*20,
@@ -252,8 +276,8 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s ) {
 		bevelEnabled	: false
 	};
 
-	if(actualCity == 'europe' || actualCity == 'spain') reScaleGroup = 100000;
-	else if(actualCity == 'world') reScaleGroup = 1000;
+	if(actualCity == 'europe' || actualCity == 'spain') { reScaleGroup = 100000;  }
+	else if(actualCity == 'world') { reScaleGroup = 1000;  }
 	else reScaleGroup = 1;
 
 	var geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -286,7 +310,7 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s ) {
 	mesh.castShadow = true;
 	mesh.receiveShadow = true;
 
-	mesh.name = 'meshing';
+	mesh.name = name;
 
 	//console.log(mesh);
 
@@ -489,13 +513,97 @@ function Unremove(){
 	$('#loading').removeClass('removeScreen');
 }
 
+function onWindowResize() {
+
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
 function onDocumentMouseMove( event ) {
 
-	/*event.preventDefault();
+	event.preventDefault();
+	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	mouse.x = ( event.clientX / window.innerWidth ) * Math.PI*4;
-	mouse.y = ( event.clientY / window.innerHeight ) * Math.PI*4;*/
+	//
+
+	raycaster.setFromCamera( mouse, camera );
+
+	if ( SELECTED ) {
+		var intersects = raycaster.intersectObject( plane );
+		if ( intersects.length > 0 ) {
+			//SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
+			SELECTED.position.set(mouse.x*400, mouse.y*200, 0)
+		}
+		return;
+	}
+
+	var intersects = raycaster.intersectObjects( group.children );
+
+	if ( intersects.length > 0 ) {
+
+	if ( INTERSECTED != intersects[ 0 ].object ) {
+			INTERSECTED = intersects[ 0 ].object; );
+		}
+		//container.style.cursor = 'pointer';
+	} else {
+
+		INTERSECTED = null;
+		//container.style.cursor = 'auto';
+	}
+
 }
+
+function onDocumentMouseDown( event ) {
+
+	event.preventDefault();
+
+	raycaster.setFromCamera( mouse, camera );
+
+	var intersects = raycaster.intersectObjects( group.children );
+
+	if ( intersects.length > 0 ) {
+
+		controls.enabled = false;
+
+		SELECTED = intersects[ 0 ].object;
+
+		console.log(SELECTED);
+
+		var intersects = raycaster.intersectObject( plane );
+
+		console.log('intersects: ', intersects)
+
+		if ( intersects.length > 0 ) {
+			//offset.copy( intersects[ 0 ].point ).sub( plane.position );
+			//group.children[46].position.set(0-mouse.x, 0, 0)
+			//console.log(group.children[46], group.children[46].position);
+
+		}
+		//container.style.cursor = 'move';
+	}
+
+}
+
+function onDocumentMouseUp( event ) {
+
+	event.preventDefault();
+
+	controls.enabled = true;
+
+	if ( INTERSECTED ) {
+
+		//plane.position.copy( INTERSECTED.position );
+
+		SELECTED = null;
+
+	}
+	//container.style.cursor = 'auto';
+
+}
+
 
 function render(){
 	renderer.render(scene,camera);
@@ -503,6 +611,7 @@ function render(){
 
 function animate() {
 	//console.log(camera.position);
+	//console.log(group.children[46], group.children[46].position);
 
 	setTimeout( function() {
 		requestAnimationFrame( animate );
