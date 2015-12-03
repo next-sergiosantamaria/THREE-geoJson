@@ -1,5 +1,5 @@
 //Globals
-var json, camera, scene, renderer, mesh, group, groupGeometry, mouse, gometryLenth, controls,
+var json, camera, scene, renderer, mesh, group, groupGeometry, mouse, gometryLenth, controls, box,
 	fast = false, 
 	width = window.innerWidth, 
 	height = window.innerHeight;
@@ -13,6 +13,7 @@ var actualCity, actualAmount = 1;
 var reScaleGroup = 1;
 
 var lightGroup = new THREE.Object3D();
+var lineGroup = new THREE.Object3D();
 
 var cameraPositionPan, cameraPositionSide, cameraTarget;
 
@@ -22,6 +23,8 @@ var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),
 	offset = new THREE.Vector3(),
 	INTERSECTED, SELECTED, plane;
+
+var spaincenters = [{'x': -219,'y': -8.5 },{'x': -241,'y': -45 },{'x': -211,'y': -84 },{'x': -175, 'y': -73 },{'x': -140,'y': -64},{'x': -106,'y': -62},{'x': -83,'y': -35 },{'x': -65,'y': -20},{'x': -58,'y': -20 },{'x': -48,'y': 49 },{'x': -28,'y': 82 },{'x': 6,'y': 107},{'x': 28,'y': 123},{'x': -15,'y': 119},{'x': -47,'y': 121 },{'x': -90,'y': 143 },{'x': -108,'y': 157 },{'x': -121,'y': 148},{'x': -79,'y': 100 },{'x': -69,'y': 65},{'x': -99,'y': 0},{'x': -107,'y': 36},{'x': -123,'y': 71 },{'x': -114,'y': 99 },{'x': -115,'y': 125 },{'x': -145,'y': 129 },{'x': -156,'y': 161 },{'x': -213,'y': 164 },{'x': -142,'y': -30 },{'x': -179,'y': -29 },{'x': -152,'y': 2 },{'x': -161,'y': 36 },{'x': -149,'y': 60 },{'x': -159,'y': 83 },{'x': -217,'y': 34 },{'x': -183,'y': 63 },{'x': -215,'y': 72 },{'x': -178,'y': 99 },{'x': -172,'y': 128 },{'x': -209,'y': 108 },{'x': -205,'y': 135 },{'x': -249,'y': 150 },{'x': -277,'y': 157 },{'x': -209,'y': -53 },{'x': -279,'y': 138 },{'x': -256,'y': 123},{'x': 42,'y': 34 },{'x': 9,'y': -71 }];	
 
 //generateMap();	
 
@@ -230,13 +233,17 @@ function buildShape(){
 
 	}else{
 
-		scene.add(group);
+		/*for(var t = 0; t<spaincenters.length; t++){
+			var boxgeometry = new THREE.BoxGeometry(5,5,5);
+			var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
+			box = new THREE.Mesh( boxgeometry, boxmaterial );
+			box.position.set( spaincenters[t].x ,spaincenters[t].y ,5  );
+			group.add(box);
+		}*/
 
-		/*var boxgeometry = new THREE.BoxGeometry(5,5,5);
-		var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
-		var box = new THREE.Mesh( boxgeometry, boxmaterial );
-		box.position.set( 0, 150,-250 );
-		scene.add(box);*/
+		addLines(spaincenters[3], spaincenters[30]);
+
+		scene.add(group);
 		
 		var directionalLight = new THREE.DirectionalLight(0xeeeeee, 1);
 		directionalLight.position.set(0, 150,-250);
@@ -435,6 +442,43 @@ function removeLights(){
 	scene.remove(lightGroup);
 }
 
+function addLines(value1, value2){
+
+	var numPoints = 100;
+	var puntoX;
+
+	var spline = new THREE.SplineCurve3([
+				   new THREE.Vector3(value1.x ,value1.y ,5 ),
+				   new THREE.Vector3(((value1.x+value2.x)/2), (value1.y+value2.y)/2, 15 ),
+				   new THREE.Vector3(value2.x ,value2.y ,5 )
+				]);
+	var geometry3 = new THREE.Geometry();
+
+	var material3 = new THREE.LineBasicMaterial({
+		    color: 0xF4351C,
+		    transparent:true,
+			opacity: 1,
+		    //linewidth: Math.floor((Math.random() * 30) + 1)*10*e,
+            linewidth: 2,
+			sizeAttenuation: false,
+			visible: true
+		});
+
+	var splinePoints = spline.getPoints(numPoints);
+
+	for(var o = 0; o < splinePoints.length; o++){
+		    geometry3.vertices.push(splinePoints[o]);  
+		}
+	var line2 = new THREE.Line(geometry3, material3);
+
+	lineGroup.add(line2);	
+
+	lineGroup.rotation.x = Math.PI / 2;
+	lineGroup.rotation.y = Math.PI;
+
+	scene.add(lineGroup);				
+}
+
 function changeAmount(value){
 	if(value == 'age') actualAmount = 0.3;
 	else if(value == 'incomes') actualAmount = 0.5;
@@ -534,8 +578,7 @@ function onDocumentMouseMove( event ) {
 	if ( SELECTED ) {
 		var intersects = raycaster.intersectObject( plane );
 		if ( intersects.length > 0 ) {
-			//SELECTED.position.copy( intersects[ 0 ].point.sub( offset ) );
-			SELECTED.position.set(mouse.x*400, mouse.y*200, 0)
+			SELECTED.position.set(mouse.x*400, mouse.y*200, 5)
 		}
 		return;
 	}
@@ -545,15 +588,12 @@ function onDocumentMouseMove( event ) {
 	if ( intersects.length > 0 ) {
 
 	if ( INTERSECTED != intersects[ 0 ].object ) {
-			INTERSECTED = intersects[ 0 ].object; );
+			INTERSECTED = intersects[ 0 ].object;
 		}
-		//container.style.cursor = 'pointer';
+
 	} else {
-
 		INTERSECTED = null;
-		//container.style.cursor = 'auto';
 	}
-
 }
 
 function onDocumentMouseDown( event ) {
@@ -580,9 +620,7 @@ function onDocumentMouseDown( event ) {
 			//offset.copy( intersects[ 0 ].point ).sub( plane.position );
 			//group.children[46].position.set(0-mouse.x, 0, 0)
 			//console.log(group.children[46], group.children[46].position);
-
 		}
-		//container.style.cursor = 'move';
 	}
 
 }
@@ -594,14 +632,10 @@ function onDocumentMouseUp( event ) {
 	controls.enabled = true;
 
 	if ( INTERSECTED ) {
-
+		console.log('posicion seleccionada: ', SELECTED, SELECTED.position);
 		//plane.position.copy( INTERSECTED.position );
-
 		SELECTED = null;
-
 	}
-	//container.style.cursor = 'auto';
-
 }
 
 
