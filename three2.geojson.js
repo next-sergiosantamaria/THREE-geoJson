@@ -14,6 +14,7 @@ var reScaleGroup = 1;
 
 var lightGroup = new THREE.Object3D();
 var lineGroup = new THREE.Object3D();
+var centersGroup = new THREE.Object3D();
 
 var cameraPositionPan, cameraPositionSide, cameraTarget;
 
@@ -241,7 +242,10 @@ function buildShape(){
 			group.add(box);
 		}*/
 
+		calculateCenters();
+
 		addLines(spaincenters[3], spaincenters[30]);
+
 
 		scene.add(group);
 		
@@ -441,17 +445,55 @@ function removeLights(){
 
 	scene.remove(lightGroup);
 }
+function calculateCenters(){
+
+	if(actualCity == 'europe' || actualCity == 'spain') { reScaleGroup = 100000;  }
+	else if(actualCity == 'world') { reScaleGroup = 1000;  }
+	else reScaleGroup = 1;
+
+	console.log(group.children);
+
+	var lenCicle = group.children.length;
+
+	for(var a = 0; a<lenCicle; a++){
+
+		var sumVertices = { 'x': 0, 'y': 0 };
+
+		var lenVertices = group.children[a].geometry.vertices.length;
+		for( var e = 0; e< lenVertices; e++){
+			sumVertices.x = sumVertices.x + group.children[a].geometry.vertices[e].x;
+			sumVertices.y = sumVertices.y + group.children[a].geometry.vertices[e].y;
+		}
+		sumVertices.x = sumVertices.x/lenVertices;
+		sumVertices.y = sumVertices.y/lenVertices;
+		console.log(lenVertices, sumVertices);
+
+		var boxgeometry = new THREE.BoxGeometry(50,50,5);
+			var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
+			box = new THREE.Mesh( boxgeometry, boxmaterial );
+			box.position.set( sumVertices.x ,sumVertices.y ,5  );
+			centersGroup.add(box);
+	}
+	centersGroup.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);
+
+	centersGroup.rotation.x = Math.PI / 2;
+	centersGroup.rotation.y = Math.PI;
+
+	scene.add(centersGroup);
+}
 
 function addLines(value1, value2){
 
-	var numPoints = 100;
+
+	/*var numPoints = 100;
 	var puntoX;
 
 	var spline = new THREE.SplineCurve3([
-				   new THREE.Vector3(value1.x ,value1.y ,5 ),
+				   new THREE.Vector3(value1.x ,value1.y ,0 ),
 				   new THREE.Vector3(((value1.x+value2.x)/2), (value1.y+value2.y)/2, 15 ),
-				   new THREE.Vector3(value2.x ,value2.y ,5 )
+				   new THREE.Vector3(value2.x ,value2.y ,0 )
 				]);
+
 	var geometry3 = new THREE.Geometry();
 
 	var material3 = new THREE.LineBasicMaterial({
@@ -459,7 +501,7 @@ function addLines(value1, value2){
 		    transparent:true,
 			opacity: 1,
 		    //linewidth: Math.floor((Math.random() * 30) + 1)*10*e,
-            linewidth: 2,
+            linewidth: 1,
 			sizeAttenuation: false,
 			visible: true
 		});
@@ -469,14 +511,37 @@ function addLines(value1, value2){
 	for(var o = 0; o < splinePoints.length; o++){
 		    geometry3.vertices.push(splinePoints[o]);  
 		}
+
 	var line2 = new THREE.Line(geometry3, material3);
 
-	lineGroup.add(line2);	
+	var customMaterial = new THREE.ShaderMaterial( 
+	{
+	    uniforms: 
+		{ 
+			"c":   { type: "f", value: 1.0 },
+			"p":   { type: "f", value: 1.4 },
+			glowColor: { type: "c", value: new THREE.Color(0xff0000) },
+			viewVector: { type: "v3", value: camera.position }
+		},
+		vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
+		fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
+		side: THREE.FrontSide,
+		blending: THREE.AdditiveBlending,
+		linewidth: 10,
+		transparent: true
+	}   );
+		
+	var lineGlow = new THREE.Line( geometry3, customMaterial );
+	lineGlow.scale.multiplyScalar(1);
+	lineGlow.name = 'luzsaber';
+
+	lineGroup.add(line2);
+	//lineGroup.add(lineGlow);	
 
 	lineGroup.rotation.x = Math.PI / 2;
 	lineGroup.rotation.y = Math.PI;
 
-	scene.add(lineGroup);				
+	scene.add(lineGroup);	*/			
 }
 
 function changeAmount(value){
@@ -578,7 +643,7 @@ function onDocumentMouseMove( event ) {
 	if ( SELECTED ) {
 		var intersects = raycaster.intersectObject( plane );
 		if ( intersects.length > 0 ) {
-			SELECTED.position.set(mouse.x*400, mouse.y*200, 5)
+			SELECTED.position.set(mouse.x*400, mouse.y*200, 0.1)
 		}
 		return;
 	}
@@ -617,6 +682,7 @@ function onDocumentMouseDown( event ) {
 		console.log('intersects: ', intersects)
 
 		if ( intersects.length > 0 ) {
+			SELECTED.position.set(mouse.x, mouse.y, 0.1)
 			//offset.copy( intersects[ 0 ].point ).sub( plane.position );
 			//group.children[46].position.set(0-mouse.x, 0, 0)
 			//console.log(group.children[46], group.children[46].position);
