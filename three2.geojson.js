@@ -24,7 +24,7 @@ var shapeCount = 0, shapes = [], subset_size = 5000;
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),
 	offset = new THREE.Vector3(),
-	INTERSECTED, SELECTED, plane;
+	INTERSECTED, SELECTED, PREVINTERSECTED, plane, prevColorIntersected;
 
 var spaincenters = [{'x': -219,'y': -8.5 },{'x': -241,'y': -45 },{'x': -211,'y': -84 },{'x': -175, 'y': -73 },{'x': -140,'y': -64},{'x': -106,'y': -62},{'x': -83,'y': -35 },{'x': -65,'y': -20},{'x': -58,'y': -20 },{'x': -48,'y': 49 },{'x': -28,'y': 82 },{'x': 6,'y': 107},{'x': 28,'y': 123},{'x': -15,'y': 119},{'x': -47,'y': 121 },{'x': -90,'y': 143 },{'x': -108,'y': 157 },{'x': -121,'y': 148},{'x': -79,'y': 100 },{'x': -69,'y': 65},{'x': -99,'y': 0},{'x': -107,'y': 36},{'x': -123,'y': 71 },{'x': -114,'y': 99 },{'x': -115,'y': 125 },{'x': -145,'y': 129 },{'x': -156,'y': 161 },{'x': -213,'y': 164 },{'x': -142,'y': -30 },{'x': -179,'y': -29 },{'x': -152,'y': 2 },{'x': -161,'y': 36 },{'x': -149,'y': 60 },{'x': -159,'y': 83 },{'x': -217,'y': 34 },{'x': -183,'y': 63 },{'x': -215,'y': 72 },{'x': -178,'y': 99 },{'x': -172,'y': 128 },{'x': -209,'y': 108 },{'x': -205,'y': 135 },{'x': -249,'y': 150 },{'x': -277,'y': 157 },{'x': -209,'y': -53 },{'x': -279,'y': 138 },{'x': -256,'y': 123},{'x': 42,'y': 34 },{'x': 9,'y': -71 }];	
 
@@ -581,12 +581,16 @@ function onDocumentMouseMove( event ) {
 
 	//
 
+	PREVINTERSECTED;
+
 	raycaster.setFromCamera( mouse, camera );
 
 	if ( SELECTED ) {
 		var intersects = raycaster.intersectObject( plane );
 		if ( intersects.length > 0 ) {
+			//SELECTED.material.materials[0].color.setRGB(0,0,0);
 			//SELECTED.position.set(mouse.x*400, mouse.y*200, 0.1)
+			//console.log(SELECTED);
 		}
 		return;
 	}
@@ -596,11 +600,21 @@ function onDocumentMouseMove( event ) {
 	if ( intersects.length > 0 ) {
 
 	if ( INTERSECTED != intersects[ 0 ].object ) {
+
+			PREVINTERSECTED = INTERSECTED;
 			INTERSECTED = intersects[ 0 ].object;
+
+			prevColorIntersected = INTERSECTED.material.materials[0].color;
+			console.log(prevColorIntersected.r);
+
+			console.log(INTERSECTED);
+			PREVINTERSECTED.material.materials[0].color.setRGB(prevColorIntersected.r, prevColorIntersected.g, prevColorIntersected.b);
+			INTERSECTED.material.materials[0].color.setRGB(1,0,0);
 		}
 
 	} else {
-		INTERSECTED = null;
+		INTERSECTED.material.materials[0].color.setRGB(prevColorIntersected.r, prevColorIntersected.g, prevColorIntersected.b);
+		//INTERSECTED = null;
 	}
 }
 
