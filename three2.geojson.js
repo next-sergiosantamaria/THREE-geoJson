@@ -605,7 +605,6 @@ function onDocumentMouseMove( event ) {
 			INTERSECTED = intersects[ 0 ].object;
 
 			prevColorIntersected = INTERSECTED.material.materials[0].color;
-			console.log(prevColorIntersected.r);
 
 			console.log(INTERSECTED);
 			PREVINTERSECTED.material.materials[0].color.setRGB(prevColorIntersected.r, prevColorIntersected.g, prevColorIntersected.b);
@@ -688,16 +687,16 @@ function addLines(value1, value2){
 
 	var spline = new THREE.SplineCurve3([
 				   new THREE.Vector3(firstPoint.x ,firstPoint.y ,2 ),
-				   new THREE.Vector3(((firstPoint.x+endPoint.x)/2), (firstPoint.y+endPoint.y)/2, 15 ),
+				   new THREE.Vector3(((firstPoint.x+endPoint.x)/2), (firstPoint.y+endPoint.y)/2, 20 ),
 				   new THREE.Vector3(endPoint.x ,endPoint.y ,2 )
 				]);
 
 	var geometry3 = new THREE.Geometry();
 
 	var material3 = new THREE.LineBasicMaterial({
-		    color: 0xF4351C,
+		    color: 0xff5500,
 		    transparent:true,
-			opacity: 1,
+			opacity: 0.5,
 		    //linewidth: Math.floor((Math.random() * 30) + 1)*10*e,
             linewidth: 1,
 			sizeAttenuation: false,
@@ -711,30 +710,7 @@ function addLines(value1, value2){
 		}
 
 	var line2 = new THREE.Line(geometry3, material3);
-
-	var customMaterial = new THREE.ShaderMaterial( 
-	{
-	    uniforms: 
-		{ 
-			"c":   { type: "f", value: 1.0 },
-			"p":   { type: "f", value: 1.4 },
-			glowColor: { type: "c", value: new THREE.Color(0xff0000) },
-			viewVector: { type: "v3", value: camera.position }
-		},
-		vertexShader:   document.getElementById( 'vertexShader'   ).textContent,
-		fragmentShader: document.getElementById( 'fragmentShader' ).textContent,
-		side: THREE.FrontSide,
-		blending: THREE.AdditiveBlending,
-		linewidth: 10,
-		transparent: true
-	}   );
-		
-	var lineGlow = new THREE.Line( geometry3, customMaterial );
-	lineGlow.scale.multiplyScalar(1);
-	lineGlow.name = 'luzsaber';
-
 	lineGroup.add(line2);
-	lineGroup.add(lineGlow);
 
 	lineGroup.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);	
 
