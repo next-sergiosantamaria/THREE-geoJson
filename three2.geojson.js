@@ -681,6 +681,7 @@ function addLines(value1, value2){
 
 	var firstPoint = centers[value1];
 	var endPoint = centers[value2];
+	var count = 0;
 
 	var numPoints = 100;
 	var puntoX;
@@ -696,7 +697,7 @@ function addLines(value1, value2){
 	var material3 = new THREE.LineBasicMaterial({
 		    color: 0xff5500,
 		    transparent:true,
-			opacity: 0.5,
+			opacity: 0.4,
 		    //linewidth: Math.floor((Math.random() * 30) + 1)*10*e,
             linewidth: 1,
 			sizeAttenuation: false,
@@ -709,7 +710,35 @@ function addLines(value1, value2){
 		    geometry3.vertices.push(splinePoints[o]);  
 		}
 
+	console.log(geometry3.vertices);	
+
 	var line2 = new THREE.Line(geometry3, material3);
+
+	//PARTICULAS -----------------------
+	var particlesize = Math.floor((Math.random() * 500) + 200);
+	var particleColor = Math.floor((Math.random() * 255) + 0);
+	var particleVelocity = Math.floor((Math.random() * 100) + 5);
+	var particleOpacity = Math.random();
+
+	var textureGlass = THREE.ImageUtils.loadTexture( "images/particles/Static/Glows/Flare5.png" );
+	//var textureGlass = THREE.ImageUtils.loadTexture( "../images/particles/Static/Smoke/Plume.png" );
+	var spriteMaterialGlass = new THREE.SpriteMaterial( 
+	    { map: textureGlass, color: 'rgb(255,'+particleColor+', 0)', transparent : true, opacity: 0.7 } );
+	var spriteGlass = new THREE.Sprite( spriteMaterialGlass );
+		spriteGlass.scale.set(particlesize,particlesize,particlesize);
+	   	spriteGlass.position.set( geometry3.vertices[0].x,  geometry3.vertices[0].y, geometry3.vertices[0].z);
+
+	setInterval(function(){ 
+			spriteGlass.position.set( geometry3.vertices[count].x,  geometry3.vertices[count].y, geometry3.vertices[count].z);
+			count = count + 1;
+			if(count >= geometry3.vertices.length ) count = 0;
+
+	 }, particleVelocity);   	
+				
+	lineGroup.add(spriteGlass);
+
+	//----------------------------------------
+
 	lineGroup.add(line2);
 
 	lineGroup.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);	

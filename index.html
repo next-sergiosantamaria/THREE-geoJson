@@ -59,6 +59,13 @@
 			    <input id="onfloor" type="radio" name="view" onchange="changeView('onFloor')" value="onfloor">
 			    <label for="onfloor">By side</label>
 			</div>
+			<div class="countrySelectTitle"><b>Change back color: </b></div>
+			<div class="countrySelectList">
+				<input id="backW" type="radio" name="bColor" onchange="changeBack('white')" value="white" checked>
+			    <label for="backW">White</label>
+			    <input id="backD" type="radio" name="bColor" onchange="changeBack('dark')" value="dark">
+			    <label for="backD">Dark</label>
+			</div>
 		</div>
 		<script type="text/javascript" src="libs/three.min.js"></script>
 		<script type="text/javascript" src="libs/jquery-2.1.0.min.js"></script>
@@ -138,6 +145,17 @@
 					if(!lng){lng = 0;}
 					return (lng-value)*100;
 				};
+
+				changeBack = function(value){
+					if(value == 'white'){
+						$('body').removeClass('blackBack');
+						$('body').addClass('whitekBack');
+					}
+					else {
+						$('body').removeClass('whitekBack');
+						$('body').addClass('blackBack');
+					}
+				}
 
 				/*function changeAmount(value){
 					console.log(scene.children[1].geometry.vertices[5].z, scene.children[1].geometry.verticesNeedUpdate);
