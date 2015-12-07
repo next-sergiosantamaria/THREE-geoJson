@@ -139,7 +139,7 @@ input[type=radio]:checked + label:before {
 }
 
 .legends{
-  background-color: rgba(0, 0, 0, 0.53);
+  background-color: rgba(68, 68, 68, 0.53);
   position: absolute;
   top: 90px;
   left: 0px;
