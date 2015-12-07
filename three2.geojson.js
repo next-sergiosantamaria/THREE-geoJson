@@ -715,6 +715,8 @@ function onDocumentDBClick( event ) {
 	else {
 		if(SELECTED != undefined) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
 		removeLines();
+		$('body').removeClass('blackBack');
+		$('body').addClass('whiteBack');
 	}
 
 }
@@ -733,6 +735,9 @@ function onDocumentMouseUp( event ) {
 }
 
 function addLines(value1, value2){
+
+	$('body').removeClass('whiteBack');
+	$('body').addClass('blackBack');
 
 	if(actualCity == 'europe' || actualCity == 'spain') { reScaleGroup = 100000;  }
 	else if(actualCity == 'world') { reScaleGroup = 1000;  }
@@ -773,7 +778,7 @@ function addLines(value1, value2){
 	//PARTICULAS -----------------------
 	var particlesize = Math.floor((Math.random() * 500) + 200);
 	var particleColor = Math.floor((Math.random() * 255) + 0);
-	var particleVelocity = Math.floor((Math.random() * 100) + 10);
+	var particleVelocity = Math.floor((Math.random() * 20) + 1);
 	var particleOpacity = Math.random();
 
 	if(actualCity == 'europe' || actualCity == 'spain') particlesize = particlesize * 55;
