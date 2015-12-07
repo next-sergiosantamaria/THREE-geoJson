@@ -169,6 +169,7 @@ function init() {
 	renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
 	renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+	renderer.domElement.addEventListener('dblclick', onDocumentDBClick, false);
 
 	//
 	window.addEventListener( 'resize', onWindowResize, false );
@@ -696,6 +697,24 @@ function onDocumentMouseDown( event ) {
 		//offset.copy( intersects[ 0 ].point ).sub( plane.position );
 		//group.children[46].position.set(0-mouse.x, 0, 0)
 		//console.log(group.children[46], group.children[46].position);
+	}
+	else {
+	}
+
+}
+
+function onDocumentDBClick( event ) {
+	event.preventDefault();
+
+	raycaster.setFromCamera( mouse, camera );
+
+	var intersects = raycaster.intersectObjects( group.children );
+
+	if ( intersects.length > 0 ) {
+	}
+	else {
+		if(SELECTED != undefined) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
+		removeLines();
 	}
 
 }
