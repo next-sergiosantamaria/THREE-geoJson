@@ -28,6 +28,22 @@ var mouse = new THREE.Vector2(),
 
  var container = document.getElementById('containerMap');	
 
+
+
+document.getElementById("amountAge").disabled = true;
+document.getElementById("amountIncomes").disabled = true;
+document.getElementById("colorAge").disabled = true;
+document.getElementById("colorIncome").disabled = true;
+document.getElementById("panoramic").disabled = true;
+document.getElementById("onfloor").disabled = true;
+document.getElementById("backW").disabled = true;
+document.getElementById("backD").disabled = true;
+
+$('#selectAmount').addClass('transparetBack');
+$('#selectColor').addClass('transparetBack');
+$('#selectView').addClass('transparetBack');
+$('#selectBackColor').addClass('transparetBack');
+
 //generateMap();	
 
 function generateMap(value){
@@ -272,6 +288,25 @@ function buildShape(){
 
 		animate();
 
+		document.getElementById("amountAge").disabled = false;
+		document.getElementById("amountIncomes").disabled = false;
+		document.getElementById("colorAge").disabled = false;
+		document.getElementById("colorIncome").disabled = false;
+		document.getElementById("panoramic").disabled = false;
+		document.getElementById("onfloor").disabled = false;
+		document.getElementById("backW").disabled = false;
+		document.getElementById("backD").disabled = false;
+
+		document.getElementById("panoramic").checked = true;
+		document.getElementById("backW").checked = true;
+		document.getElementById("colorNone").checked = true;
+		document.getElementById("amountNone").checked = true;
+
+		$('#selectAmount').removeClass('transparetBack');
+		$('#selectColor').removeClass('transparetBack');
+		$('#selectView').removeClass('transparetBack');
+		$('#selectBackColor').removeClass('transparetBack');
+
 		setTimeout(hide,1000);
 		setTimeout(remove,2000);
 
@@ -351,13 +386,16 @@ function changeView(value){
 		document.getElementById("colorAge").disabled = true;
 		document.getElementById("colorIncome").disabled = true;
 
+		document.getElementById("backW").checked = false;
+		document.getElementById("backD").checked = true;
+
 		$('#selectAmount').addClass('transparetBack');
 		$('#selectColor').addClass('transparetBack');
 
 		$('#loading').removeClass('whiteBack');
 		$('#loading').addClass('transparetBack');
 
-		$('body').removeClass('whitekBack');
+		$('body').removeClass('whiteBack');
 		$('body').addClass('blackBack');
 
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
@@ -374,6 +412,9 @@ function changeView(value){
 		document.getElementById("amountIncomes").disabled = false;
 		document.getElementById("colorAge").disabled = false;
 		document.getElementById("colorIncome").disabled = false;
+
+		document.getElementById("backW").checked = true;
+		document.getElementById("backD").checked = false;
 
 		$('#selectAmount').removeClass('transparetBack');
 		$('#selectColor').removeClass('transparetBack');
@@ -525,7 +566,7 @@ function changeColor(value){
 			var green = colorHex;
 		}
 		group.children[a].originalColor = { 'r': red, 'g': green, 'b': blue };
-		movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[0].color, 0, 1000);
+		if(!group.children[a].active) movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[0].color, 0, 1000);
 		movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[1].color, 0, 1000);
 		group.children[a].material.materials[0].needsUpdate = true;
 	}
@@ -542,6 +583,17 @@ function changeOpacity(value){
 		group.children[a].material.materials[0].needsUpdate = true;
 	}
 	//movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': actualAmount }, mesh.scale, 0, 1000);
+}
+
+function changeBack(value){
+	if(value == 'white'){
+		$('body').removeClass('blackBack');
+		$('body').addClass('whiteBack');
+	}
+	else {
+		$('body').removeClass('whiteBack');
+		$('body').addClass('blackBack');
+	}
 }
 
 function hide(){

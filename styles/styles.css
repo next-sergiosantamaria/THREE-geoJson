@@ -37,10 +37,10 @@ html,body {
 }
 .countrySelectTitle{
 	width: 100%;
-	height: 30px;
+	height: 19px;
 	background-color: rgba(0, 0, 0, 0.53);
 	color: white;
-	font-size: 25px;
+	font-size: 18px;
 	text-align: left;
 	padding: 10px;
 }

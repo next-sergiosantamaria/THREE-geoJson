@@ -53,15 +53,15 @@
 			    <label for="colorNone">None</label>
 			</div>
 			<div class="countrySelectTitle"><b>Select view: </b></div>
-			<div class="countrySelectList">
-				<input id="panoramic" type="radio" name="view" onchange="changeView('panoramic')" value="panoramic" checked>
+			<div id="selectView" class="countrySelectList">
+				<input id="panoramic" type="radio" name="view" onchange="changeView('panoramic')" value="panoramic">
 			    <label for="panoramic">Panoramic</label>
 			    <input id="onfloor" type="radio" name="view" onchange="changeView('onFloor')" value="onfloor">
 			    <label for="onfloor">By side</label>
 			</div>
 			<div class="countrySelectTitle"><b>Change back color: </b></div>
-			<div class="countrySelectList">
-				<input id="backW" type="radio" name="bColor" onchange="changeBack('white')" value="white" checked>
+			<div id="selectBackColor" class="countrySelectList">
+				<input id="backW" type="radio" name="bColor" onchange="changeBack('white')" value="white">
 			    <label for="backW">White</label>
 			    <input id="backD" type="radio" name="bColor" onchange="changeBack('dark')" value="dark">
 			    <label for="backD">Dark</label>
@@ -112,6 +112,7 @@
 					if(!lng){lng = 0;}
 					return (lng-52.53)*100;
 				};*/
+
 				changeCity = function(value){
 
 					$('#loading').removeClass('transparetBack');
@@ -146,17 +147,6 @@
 					if(!lng){lng = 0;}
 					return (lng-value)*100;
 				};
-
-				changeBack = function(value){
-					if(value == 'white'){
-						$('body').removeClass('blackBack');
-						$('body').addClass('whitekBack');
-					}
-					else {
-						$('body').removeClass('whitekBack');
-						$('body').addClass('blackBack');
-					}
-				}
 
 				/*function changeAmount(value){
 					console.log(scene.children[1].geometry.vertices[5].z, scene.children[1].geometry.verticesNeedUpdate);
