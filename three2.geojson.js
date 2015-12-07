@@ -648,12 +648,14 @@ function onDocumentMouseMove( event ) {
 				prevColorIntersected = intersects[ 0 ].object.material.materials[0].color;
 
 				if(!INTERSECTED.active) INTERSECTED.material.materials[0].color.setRGB(1,0.5,0.5); //movement( { 'r': 1, 'g': 0.5, 'b': 0.5 }, INTERSECTED.material.materials[0].color, 0, 200); 
+				document.getElementById("infoPanel").innerHTML = INTERSECTED.name;
 			}
 
 		} else {
 			container.style.cursor = 'default';
 			if( INTERSECTED != undefined && !INTERSECTED.active ) INTERSECTED.material.materials[0].color.setRGB( INTERSECTED.originalColor.r, INTERSECTED.originalColor.g, INTERSECTED.originalColor.b );
 			INTERSECTED = undefined;
+			document.getElementById("infoPanel").innerHTML = '';
 		}	
 }
 
@@ -667,8 +669,6 @@ function onDocumentMouseDown( event ) {
 
 	if ( intersects.length > 0 ) {
 
-		console.log('SELECTED primero: ', SELECTED);
-
 		if( SELECTED != undefined ) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
 
 		controls.enabled = false;
@@ -681,8 +681,6 @@ function onDocumentMouseDown( event ) {
 
 		removeLines();
 
-		console.log('SELECTED despues: ',SELECTED);
-
 		var numberOfLines = Math.floor((Math.random() * 30) + 5);
 		var maxLines = group.children.length;
 
@@ -692,6 +690,8 @@ function onDocumentMouseDown( event ) {
 
 		SELECTED.material.materials[0].color.setRGB(0.5,1,0.5);
 		SELECTED.active = true;
+
+		document.getElementById("infoPanelSelected").innerHTML = SELECTED.name;
 			
 		//SELECTED.position.set(mouse.x, mouse.y, 0.1)
 		//offset.copy( intersects[ 0 ].point ).sub( plane.position );
@@ -743,7 +743,6 @@ function addLines(value1, value2){
 	var count = 0;
 
 	var numPoints = 200;
-	var puntoX;
 
 	var spline = new THREE.SplineCurve3([
 				   new THREE.Vector3(firstPoint.x ,firstPoint.y ,2 ),
@@ -756,7 +755,7 @@ function addLines(value1, value2){
 	var material3 = new THREE.LineBasicMaterial({
 		    color: 0xff5500,
 		    transparent:true,
-			opacity: 0.4,
+			opacity: 0.8,
 		    //linewidth: Math.floor((Math.random() * 30) + 1)*10*e,
             linewidth: 1,
 			sizeAttenuation: false,
@@ -774,8 +773,10 @@ function addLines(value1, value2){
 	//PARTICULAS -----------------------
 	var particlesize = Math.floor((Math.random() * 500) + 200);
 	var particleColor = Math.floor((Math.random() * 255) + 0);
-	var particleVelocity = Math.floor((Math.random() * 100) + 5);
+	var particleVelocity = Math.floor((Math.random() * 100) + 10);
 	var particleOpacity = Math.random();
+
+	if(actualCity == 'europe' || actualCity == 'spain') particlesize = particlesize * 55;
 
 	var textureGlass = THREE.ImageUtils.loadTexture( "images/particles/Static/Glows/Flare5.png" );
 	//var textureGlass = THREE.ImageUtils.loadTexture( "../images/particles/Static/Smoke/Plume.png" );
