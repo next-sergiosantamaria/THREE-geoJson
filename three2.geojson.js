@@ -649,6 +649,7 @@ function onDocumentMouseMove( event ) {
 
 				if(!INTERSECTED.active) INTERSECTED.material.materials[0].color.setRGB(1,0.5,0.5); //movement( { 'r': 1, 'g': 0.5, 'b': 0.5 }, INTERSECTED.material.materials[0].color, 0, 200); 
 				document.getElementById("infoPanel").innerHTML = INTERSECTED.name;
+				$('#infoPanel').removeClass('hideLeft');
 			}
 
 		} else {
@@ -656,6 +657,7 @@ function onDocumentMouseMove( event ) {
 			if( INTERSECTED != undefined && !INTERSECTED.active ) INTERSECTED.material.materials[0].color.setRGB( INTERSECTED.originalColor.r, INTERSECTED.originalColor.g, INTERSECTED.originalColor.b );
 			INTERSECTED = undefined;
 			document.getElementById("infoPanel").innerHTML = '';
+			$('#infoPanel').addClass('hideLeft');
 		}	
 }
 
@@ -685,13 +687,16 @@ function onDocumentMouseDown( event ) {
 		var maxLines = group.children.length;
 
 		for(var a = 0; a<numberOfLines; a++){
-			addLines(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
+			addLinesRed(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
+			addLinesBlue(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
 		}
 
 		SELECTED.material.materials[0].color.setRGB(0.5,1,0.5);
 		SELECTED.active = true;
 
 		document.getElementById("infoPanelSelected").innerHTML = SELECTED.name;
+		$('#infoPanelSelected').removeClass('hideLeft');
+		$('#legends').removeClass('hideLeft');
 			
 		//SELECTED.position.set(mouse.x, mouse.y, 0.1)
 		//offset.copy( intersects[ 0 ].point ).sub( plane.position );
@@ -717,6 +722,9 @@ function onDocumentDBClick( event ) {
 		removeLines();
 		$('body').removeClass('blackBack');
 		$('body').addClass('whiteBack');
+		document.getElementById("infoPanelSelected").innerHTML = '';
+		$('#infoPanelSelected').addClass('hideLeft');
+		$('#legends').addClass('hideLeft');
 	}
 
 }
@@ -734,7 +742,7 @@ function onDocumentMouseUp( event ) {
 	}
 }
 
-function addLines(value1, value2){
+function addLinesRed(value1, value2){
 
 	$('body').removeClass('whiteBack');
 	$('body').addClass('blackBack');
@@ -783,10 +791,15 @@ function addLines(value1, value2){
 
 	if(actualCity == 'europe' || actualCity == 'spain') particlesize = particlesize * 55;
 
-	var textureGlass = THREE.ImageUtils.loadTexture( "images/particles/Static/Glows/Flare5.png" );
+	var textureGlass = THREE.ImageUtils.loadTexture( "images/particles/Static/Glows/glow.png" );
 	//var textureGlass = THREE.ImageUtils.loadTexture( "../images/particles/Static/Smoke/Plume.png" );
 	var spriteMaterialGlass = new THREE.SpriteMaterial( 
-	    { map: textureGlass, color: 'rgb(255,'+particleColor+', 0)', transparent : true, opacity: 0.7 } );
+	    { 	
+	    	map: textureGlass, 
+	    	//color: 'rgb(255,'+particleColor+', 0)', 
+	    	color: 'rgb(255, 255, 0)', 
+	    	transparent : true, opacity: 0.7 
+	    } );
 	var spriteGlass = new THREE.Sprite( spriteMaterialGlass );
 		spriteGlass.scale.set(particlesize,particlesize,particlesize);
 	   	spriteGlass.position.set( geometry3.vertices[0].x,  geometry3.vertices[0].y, geometry3.vertices[0].z);
@@ -795,6 +808,91 @@ function addLines(value1, value2){
 			spriteGlass.position.set( geometry3.vertices[count].x,  geometry3.vertices[count].y, geometry3.vertices[count].z);
 			count = count + 1;
 			if(count >= geometry3.vertices.length ) count = 0;
+
+	 }, particleVelocity);   	
+				
+	lineGroup.add(spriteGlass);
+
+	//----------------------------------------
+
+	lineGroup.add(line2);
+
+	lineGroup.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);	
+
+	lineGroup.rotation.x = Math.PI / 2;
+	lineGroup.rotation.y = Math.PI;
+
+	scene.add(lineGroup);
+}
+
+function addLinesBlue(value1, value2){
+
+	$('body').removeClass('whiteBack');
+	$('body').addClass('blackBack');
+
+	if(actualCity == 'europe' || actualCity == 'spain') { reScaleGroup = 100000;  }
+	else if(actualCity == 'world') { reScaleGroup = 1000;  }
+	else reScaleGroup = 1;
+
+	var firstPoint = centers[value1];
+	var endPoint = centers[value2];
+
+	var numPoints = 200;
+
+	var spline = new THREE.SplineCurve3([
+				   new THREE.Vector3(firstPoint.x ,firstPoint.y ,2 ),
+				   new THREE.Vector3(((firstPoint.x+endPoint.x)/2), (firstPoint.y+endPoint.y)/2, 20 ),
+				   new THREE.Vector3(endPoint.x ,endPoint.y ,2 )
+				]);
+
+	var geometry3 = new THREE.Geometry();
+
+	var material3 = new THREE.LineBasicMaterial({
+		    color: 0x5555FF,
+		    transparent:true,
+			opacity: 0.8,
+		    //linewidth: Math.floor((Math.random() * 30) + 1)*10*e,
+            linewidth: 1,
+			sizeAttenuation: false,
+			visible: true
+		});
+
+	var splinePoints = spline.getPoints(numPoints);
+
+	for(var o = 0; o < splinePoints.length; o++){
+		    geometry3.vertices.push(splinePoints[o]);  
+		}	
+
+	var line2 = new THREE.Line(geometry3, material3);
+
+	var count = 200;
+
+	//PARTICULAS -----------------------
+	var particlesize = Math.floor((Math.random() * 500) + 200);
+	var particleColor = Math.floor((Math.random() * 255) + 0);
+	var particleVelocity = Math.floor((Math.random() * 20) + 1);
+	var particleOpacity = Math.random();
+
+	if(actualCity == 'europe' || actualCity == 'spain') particlesize = particlesize * 55;
+
+	var textureGlass = THREE.ImageUtils.loadTexture( "images/particles/Static/Glows/glow.png" );
+	//var textureGlass = THREE.ImageUtils.loadTexture( "../images/particles/Static/Smoke/Plume.png" );
+	var spriteMaterialGlass = new THREE.SpriteMaterial( 
+	    { 	
+	    	map: textureGlass, 
+	    	color: 'rgb('+particleColor+', '+particleColor+', 255)', 
+	    	//color: 'rgb(255, 255, 0)', 
+	    	transparent : true, opacity: 0.7 
+	    } );
+
+	var spriteGlass = new THREE.Sprite( spriteMaterialGlass );
+		spriteGlass.scale.set(particlesize,particlesize,particlesize);
+	   	spriteGlass.position.set( geometry3.vertices[count].x,  geometry3.vertices[count].y, geometry3.vertices[count].z);
+
+	setInterval(function(){ 
+			spriteGlass.position.set( geometry3.vertices[count].x,  geometry3.vertices[count].y, geometry3.vertices[count].z);
+			count = count - 1;
+			if(count <= 0 ) count = 200;
 
 	 }, particleVelocity);   	
 				
