@@ -24,9 +24,9 @@ var shapeCount = 0, shapes = [], subset_size = 5000;
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),
 	offset = new THREE.Vector3(),
-	INTERSECTED, SELECTED, PREVINTERSECTED, plane, prevColorIntersected;
+	INTERSECTED, SELECTED, plane, prevColorIntersected;
 
-var spaincenters = [{'x': -219,'y': -8.5 },{'x': -241,'y': -45 },{'x': -211,'y': -84 },{'x': -175, 'y': -73 },{'x': -140,'y': -64},{'x': -106,'y': -62},{'x': -83,'y': -35 },{'x': -65,'y': -20},{'x': -58,'y': -20 },{'x': -48,'y': 49 },{'x': -28,'y': 82 },{'x': 6,'y': 107},{'x': 28,'y': 123},{'x': -15,'y': 119},{'x': -47,'y': 121 },{'x': -90,'y': 143 },{'x': -108,'y': 157 },{'x': -121,'y': 148},{'x': -79,'y': 100 },{'x': -69,'y': 65},{'x': -99,'y': 0},{'x': -107,'y': 36},{'x': -123,'y': 71 },{'x': -114,'y': 99 },{'x': -115,'y': 125 },{'x': -145,'y': 129 },{'x': -156,'y': 161 },{'x': -213,'y': 164 },{'x': -142,'y': -30 },{'x': -179,'y': -29 },{'x': -152,'y': 2 },{'x': -161,'y': 36 },{'x': -149,'y': 60 },{'x': -159,'y': 83 },{'x': -217,'y': 34 },{'x': -183,'y': 63 },{'x': -215,'y': 72 },{'x': -178,'y': 99 },{'x': -172,'y': 128 },{'x': -209,'y': 108 },{'x': -205,'y': 135 },{'x': -249,'y': 150 },{'x': -277,'y': 157 },{'x': -209,'y': -53 },{'x': -279,'y': 138 },{'x': -256,'y': 123},{'x': 42,'y': 34 },{'x': 9,'y': -71 }];	
+ var container = document.getElementById('containerMap');	
 
 //generateMap();	
 
@@ -120,6 +120,8 @@ function init() {
 	camera.position.set( cameraPositionPan.x, cameraPositionPan.y, cameraPositionPan.z );
 
 	mouse = new THREE.Vector2();
+
+	document.body.appendChild(container);
 
 	renderer = new THREE.WebGLRenderer( { antialias: true, preserveDrawingBuffer: true, alpha: true } );
 	renderer.setSize( width, height );
@@ -264,7 +266,7 @@ function buildShape(){
 		controls.enableZoom = true;
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
 
-		document.body.appendChild( renderer.domElement );
+		container.appendChild(renderer.domElement);
 
 		log("animate");
 
@@ -322,6 +324,8 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s, name ) {
 
 	mesh.name = name;
 	mesh.number = countForShapes;
+	mesh.originalColor = { 'r': 1, 'g': 1, 'b': 1 };
+	mesh.active = false;
 
 	//console.log(mesh);
 
@@ -520,6 +524,7 @@ function changeColor(value){
 			var blue = 1-colorHex;
 			var green = colorHex;
 		}
+		group.children[a].originalColor = { 'r': red, 'g': green, 'b': blue };
 		movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[0].color, 0, 1000);
 		movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[1].color, 0, 1000);
 		group.children[a].material.materials[0].needsUpdate = true;
@@ -537,17 +542,6 @@ function changeOpacity(value){
 		group.children[a].material.materials[0].needsUpdate = true;
 	}
 	//movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': actualAmount }, mesh.scale, 0, 1000);
-}
-
-
-function movement(value, object, delay, duration){
-          var tween = new TWEEN.Tween(object).to(
-          	value
-          	,duration).easing(TWEEN.Easing.Quadratic.Out).onUpdate(function () {
-          	/*camera.position.x = valueX;
-          	camera.position.y = valueY;
-          	camera.position.z = valueZ;*/
-          }).delay(delay).start();
 }
 
 function hide(){
@@ -581,40 +575,33 @@ function onDocumentMouseMove( event ) {
 
 	//
 
-	PREVINTERSECTED;
-
 	raycaster.setFromCamera( mouse, camera );
-
-	if ( SELECTED ) {
-		var intersects = raycaster.intersectObject( plane );
-		if ( intersects.length > 0 ) {
-			//SELECTED.material.materials[0].color.setRGB(0,0,0);
-			//SELECTED.position.set(mouse.x*400, mouse.y*200, 0.1)
-			//console.log(SELECTED);
-		}
-		return;
-	}
 
 	var intersects = raycaster.intersectObjects( group.children );
 
 	if ( intersects.length > 0 ) {
 
-	if ( INTERSECTED != intersects[ 0 ].object ) {
+			container.style.cursor = 'pointer';
 
-			PREVINTERSECTED = INTERSECTED;
-			INTERSECTED = intersects[ 0 ].object;
+		if ( INTERSECTED != intersects[ 0 ].object ) {
 
-			prevColorIntersected = INTERSECTED.material.materials[0].color;
+				if(INTERSECTED != undefined && !INTERSECTED.active){
+					//INTERSECTED.material.materials[0].color.setRGB( INTERSECTED.originalColor.r, INTERSECTED.originalColor.g, INTERSECTED.originalColor.b );
+					movement( { 'r': INTERSECTED.originalColor.r, 'g': INTERSECTED.originalColor.g, 'b': INTERSECTED.originalColor.b }, INTERSECTED.material.materials[0].color, 0, 1000);	
+				}
 
-			console.log(INTERSECTED);
-			PREVINTERSECTED.material.materials[0].color.setRGB(prevColorIntersected.r, prevColorIntersected.g, prevColorIntersected.b);
-			INTERSECTED.material.materials[0].color.setRGB(1,0,0);
-		}
+				INTERSECTED = intersects[ 0 ].object;
 
-	} else {
-		INTERSECTED.material.materials[0].color.setRGB(prevColorIntersected.r, prevColorIntersected.g, prevColorIntersected.b);
-		//INTERSECTED = null;
-	}
+				prevColorIntersected = intersects[ 0 ].object.material.materials[0].color;
+
+				if(!INTERSECTED.active) INTERSECTED.material.materials[0].color.setRGB(1,0.5,0.5); //movement( { 'r': 1, 'g': 0.5, 'b': 0.5 }, INTERSECTED.material.materials[0].color, 0, 200); 
+			}
+
+		} else {
+			container.style.cursor = 'default';
+			if( INTERSECTED != undefined && !INTERSECTED.active ) INTERSECTED.material.materials[0].color.setRGB( INTERSECTED.originalColor.r, INTERSECTED.originalColor.g, INTERSECTED.originalColor.b );
+			INTERSECTED = undefined;
+		}	
 }
 
 function onDocumentMouseDown( event ) {
@@ -627,6 +614,10 @@ function onDocumentMouseDown( event ) {
 
 	if ( intersects.length > 0 ) {
 
+		console.log('SELECTED primero: ', SELECTED);
+
+		if( SELECTED != undefined ) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
+
 		controls.enabled = false;
 
 		SELECTED = intersects[ 0 ].object;
@@ -635,27 +626,24 @@ function onDocumentMouseDown( event ) {
 
 		var intersects = raycaster.intersectObject( plane );
 
-		console.log('intersects: ', intersects)
+		removeLines();
 
-		if ( intersects.length > 0 ) {
+		console.log('SELECTED despues: ',SELECTED);
 
-			removeLines();
+		var numberOfLines = Math.floor((Math.random() * 30) + 5);
+		var maxLines = group.children.length;
 
-			console.log(SELECTED);
-
-			var numberOfLines = Math.floor((Math.random() * 30) + 5);
-			var maxLines = group.children.length;
-
-			for(var a = 0; a<numberOfLines; a++){
-				addLines(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
-			}
-
-			
-			//SELECTED.position.set(mouse.x, mouse.y, 0.1)
-			//offset.copy( intersects[ 0 ].point ).sub( plane.position );
-			//group.children[46].position.set(0-mouse.x, 0, 0)
-			//console.log(group.children[46], group.children[46].position);
+		for(var a = 0; a<numberOfLines; a++){
+			addLines(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
 		}
+
+		SELECTED.material.materials[0].color.setRGB(0.5,1,0.5);
+		SELECTED.active = true;
+			
+		//SELECTED.position.set(mouse.x, mouse.y, 0.1)
+		//offset.copy( intersects[ 0 ].point ).sub( plane.position );
+		//group.children[46].position.set(0-mouse.x, 0, 0)
+		//console.log(group.children[46], group.children[46].position);
 	}
 
 }
@@ -667,9 +655,9 @@ function onDocumentMouseUp( event ) {
 	controls.enabled = true;
 
 	if ( INTERSECTED ) {
-		console.log('posicion seleccionada: ', SELECTED, SELECTED.position);
+		//console.log('posicion seleccionada: ', SELECTED, SELECTED.position);
 		//plane.position.copy( INTERSECTED.position );
-		SELECTED = null;
+		//SELECTED = null;
 	}
 }
 
@@ -683,7 +671,7 @@ function addLines(value1, value2){
 	var endPoint = centers[value2];
 	var count = 0;
 
-	var numPoints = 100;
+	var numPoints = 200;
 	var puntoX;
 
 	var spline = new THREE.SplineCurve3([
@@ -708,9 +696,7 @@ function addLines(value1, value2){
 
 	for(var o = 0; o < splinePoints.length; o++){
 		    geometry3.vertices.push(splinePoints[o]);  
-		}
-
-	console.log(geometry3.vertices);	
+		}	
 
 	var line2 = new THREE.Line(geometry3, material3);
 
@@ -758,6 +744,16 @@ function removeLines(){
 	}
 }
 
+
+function movement(value, object, delay, duration){
+          var tween = new TWEEN.Tween(object).to(
+          	value
+          	,duration).easing(TWEEN.Easing.Quadratic.Out).onUpdate(function () {
+          	/*camera.position.x = valueX;
+          	camera.position.y = valueY;
+          	camera.position.z = valueZ;*/
+          }).delay(delay).start();
+}
 
 function render(){
 	renderer.render(scene,camera);
