@@ -615,90 +615,97 @@ function onDocumentMouseMove( event ) {
 	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-	//
-
 	raycaster.setFromCamera( mouse, camera );
 
-	var intersects = raycaster.intersectObjects( group.children );
+	//
 
-	if ( intersects.length > 0 ) {
+	if(actualCity != 'abudhabi'){
 
-			container.style.cursor = 'pointer';
+		var intersects = raycaster.intersectObjects( group.children );
 
-		if ( INTERSECTED != intersects[ 0 ].object ) {
+		if ( intersects.length > 0 ) {
 
-				if(INTERSECTED != undefined && !INTERSECTED.active){
-					//INTERSECTED.material.materials[0].color.setRGB( INTERSECTED.originalColor.r, INTERSECTED.originalColor.g, INTERSECTED.originalColor.b );
-					movement( { 'r': INTERSECTED.originalColor.r, 'g': INTERSECTED.originalColor.g, 'b': INTERSECTED.originalColor.b }, INTERSECTED.material.materials[0].color, 0, 1000);	
+				container.style.cursor = 'pointer';
+
+			if ( INTERSECTED != intersects[ 0 ].object ) {
+
+					if(INTERSECTED != undefined && !INTERSECTED.active){
+						//INTERSECTED.material.materials[0].color.setRGB( INTERSECTED.originalColor.r, INTERSECTED.originalColor.g, INTERSECTED.originalColor.b );
+						movement( { 'r': INTERSECTED.originalColor.r, 'g': INTERSECTED.originalColor.g, 'b': INTERSECTED.originalColor.b }, INTERSECTED.material.materials[0].color, 0, 1000);	
+					}
+
+					INTERSECTED = intersects[ 0 ].object;
+
+					prevColorIntersected = intersects[ 0 ].object.material.materials[0].color;
+
+					if(!INTERSECTED.active) INTERSECTED.material.materials[0].color.setRGB(1,0.5,0.5); //movement( { 'r': 1, 'g': 0.5, 'b': 0.5 }, INTERSECTED.material.materials[0].color, 0, 200); 
+					document.getElementById("infoPanel").innerHTML = INTERSECTED.name;
+					$('#infoPanel').removeClass('hideLeft');
 				}
 
-				INTERSECTED = intersects[ 0 ].object;
-
-				prevColorIntersected = intersects[ 0 ].object.material.materials[0].color;
-
-				if(!INTERSECTED.active) INTERSECTED.material.materials[0].color.setRGB(1,0.5,0.5); //movement( { 'r': 1, 'g': 0.5, 'b': 0.5 }, INTERSECTED.material.materials[0].color, 0, 200); 
-				document.getElementById("infoPanel").innerHTML = INTERSECTED.name;
-				$('#infoPanel').removeClass('hideLeft');
-			}
-
-		} else {
-			container.style.cursor = 'default';
-			if( INTERSECTED != undefined && !INTERSECTED.active ) INTERSECTED.material.materials[0].color.setRGB( INTERSECTED.originalColor.r, INTERSECTED.originalColor.g, INTERSECTED.originalColor.b );
-			INTERSECTED = undefined;
-			document.getElementById("infoPanel").innerHTML = '';
-			$('#infoPanel').addClass('hideLeft');
-		}	
+			} else {
+				container.style.cursor = 'default';
+				if( INTERSECTED != undefined && !INTERSECTED.active ) INTERSECTED.material.materials[0].color.setRGB( INTERSECTED.originalColor.r, INTERSECTED.originalColor.g, INTERSECTED.originalColor.b );
+				INTERSECTED = undefined;
+				document.getElementById("infoPanel").innerHTML = '';
+				$('#infoPanel').addClass('hideLeft');
+			}	
+	}
 }
 
 function onDocumentMouseDown( event ) {
 
-	event.preventDefault();
+	console.log(actualCity);
 
-	raycaster.setFromCamera( mouse, camera );
+	if(actualCity != 'abudhabi'){
 
-	var intersects = raycaster.intersectObjects( group.children );
+		event.preventDefault();
 
-	if ( intersects.length > 0 && ctrlCount<3 ) {
+		raycaster.setFromCamera( mouse, camera );
 
-		if(ctrlPressed)ctrlCount = ctrlCount + 1;
+		var intersects = raycaster.intersectObjects( group.children );
 
-		if( SELECTED != undefined && !ctrlPressed ) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
+		if ( intersects.length > 0 && ctrlCount<3 ) {
 
-		controls.enabled = false;
+			if(ctrlPressed)ctrlCount = ctrlCount + 1;
 
-		SELECTED = intersects[ 0 ].object;
+			if( SELECTED != undefined && !ctrlPressed ) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
 
-		console.log(SELECTED);
+			controls.enabled = false;
 
-		var intersects = raycaster.intersectObject( plane );
+			SELECTED = intersects[ 0 ].object;
 
-		if(!ctrlPressed) removeLines();
+			console.log(SELECTED);
 
-		var numberOfLines = Math.floor((Math.random() * 30) + 5);
-		var maxLines = group.children.length;
+			var intersects = raycaster.intersectObject( plane );
 
-		for(var a = 0; a<numberOfLines; a++){
-			addLinesRed(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
-			addLinesBlue(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
+			if(!ctrlPressed) removeLines();
+
+			var numberOfLines = Math.floor((Math.random() * 30) + 5);
+			var maxLines = group.children.length;
+
+			for(var a = 0; a<numberOfLines; a++){
+				addLinesRed(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
+				addLinesBlue(SELECTED.number, Math.floor((Math.random() * maxLines) + 0));
+			}
+
+			SELECTED.material.materials[0].color.setRGB(0.5,1,0.5);
+			SELECTED.active = true;
+
+			var selectLabel = "infoPanelSelected"+ctrlCount.toString();
+
+			document.getElementById(selectLabel).innerHTML = SELECTED.name;
+			$('#'+selectLabel).removeClass('noneDisplay');
+			$('#infoPanelSelectedGroup').removeClass('hideLeft');
+				
+			//SELECTED.position.set(mouse.x, mouse.y, 0.1)
+			//offset.copy( intersects[ 0 ].point ).sub( plane.position );
+			//group.children[46].position.set(0-mouse.x, 0, 0)
+			//console.log(group.children[46], group.children[46].position);
 		}
-
-		SELECTED.material.materials[0].color.setRGB(0.5,1,0.5);
-		SELECTED.active = true;
-
-		var selectLabel = "infoPanelSelected"+ctrlCount.toString();
-
-		document.getElementById(selectLabel).innerHTML = SELECTED.name;
-		$('#'+selectLabel).removeClass('noneDisplay');
-		$('#infoPanelSelectedGroup').removeClass('hideLeft');
-			
-		//SELECTED.position.set(mouse.x, mouse.y, 0.1)
-		//offset.copy( intersects[ 0 ].point ).sub( plane.position );
-		//group.children[46].position.set(0-mouse.x, 0, 0)
-		//console.log(group.children[46], group.children[46].position);
+		else {
+		}
 	}
-	else {
-	}
-
 }
 
 function onDocumentDBClick( event ) {
