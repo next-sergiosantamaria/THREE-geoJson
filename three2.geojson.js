@@ -411,6 +411,8 @@ function changeView(value){
 		$('body').removeClass('whiteBack');
 		$('body').addClass('blackBack');
 
+		$('#frontiers').removeClass('hideLeft');
+
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
 		changeColor('blue', true);
 		//changeOpacity('white');
@@ -431,6 +433,8 @@ function changeView(value){
 
 		$('#selectAmount').removeClass('transparetBack');
 		$('#selectColor').removeClass('transparetBack');
+
+		$('#frontiers').addClass('hideLeft');
 
 		removeLights();
 		changeColor('white', true);

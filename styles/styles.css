@@ -244,6 +244,17 @@ input[type=radio]:checked + label:before, input[type=checkbox]:checked + label:b
 	font-weight: bold;
 }
 
+.frontierInfo{
+  position: absolute;
+  top: 0px;
+  left: 10px;
+  background-color: rgba(68, 68, 68, 0.53);
+  color: white;
+  font-weight: bold;
+  font-size: 30px;
+  padding: 15px;
+}
+
 .hideScreen{
 	opacity: 0;
     -webkit-transition: all ease-out 1s;
