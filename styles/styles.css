@@ -129,7 +129,7 @@ input[type=radio]:checked + label:before, input[type=checkbox]:checked + label:b
   position: absolute;
   top: 0px;
   left: 0px;
-  width: 250px;
+  width: 340px;
   height: 30px;
   color: white;
   font-weight: bold;
@@ -137,12 +137,16 @@ input[type=radio]:checked + label:before, input[type=checkbox]:checked + label:b
   padding-top: 11px;
   font-size: 20px;
 }
-.infoPanelSelected{
-  background-color: rgba(0, 107, 0, 0.53);
+
+.infoPanelSelectedGroup {
   position: absolute;
   top: 50px;
   left: 0px;
-  width: 250px;
+}
+
+.infoPanelSelected{
+  background-color: rgba(0, 107, 0, 0.53);
+  width: 340px;
   height: 30px;
   color: white;
   font-weight: bold;
@@ -153,10 +157,7 @@ input[type=radio]:checked + label:before, input[type=checkbox]:checked + label:b
 
 .legends{
   background-color: rgba(68, 68, 68, 0.53);
-  position: absolute;
-  top: 90px;
-  left: 0px;
-  width: 250px;
+  width: 340px;
   color: white;
   font-weight: bold;
   text-align: center;
@@ -263,7 +264,7 @@ input[type=radio]:checked + label:before, input[type=checkbox]:checked + label:b
 }
 
 .hideLeft {
-  left: -300px;
+  left: -360px;
     -webkit-transition: all ease-out 0.5s;
     -moz-transition: all ease-out 0.5s;
     -o-transition: all  ease-out 0.5s;
@@ -276,4 +277,7 @@ input[type=radio]:checked + label:before, input[type=checkbox]:checked + label:b
     -moz-transition: all ease-out 0.5s;
     -o-transition: all  ease-out 0.5s;
     transition: all ease-out 0.5s;
+}
+.noneDisplay{
+  display: none;
 }

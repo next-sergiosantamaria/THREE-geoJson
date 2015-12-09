@@ -20,12 +20,23 @@ var centersGroup = new THREE.Object3D();
 
 var cameraPositionPan, cameraPositionSide, cameraTarget;
 
-var shapeCount = 0, shapes = [], subset_size = 5000;
+var shapeCount = 0, shapes = [], subset_size = 5000, ctrlCount = 0;
 
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2(),
 	offset = new THREE.Vector3(),
 	INTERSECTED, SELECTED, plane, prevColorIntersected;
+
+var ctrlPressed = false;
+$(window).keydown(function(evt) {
+  if (evt.which == 17) { // ctrl
+    ctrlPressed = true;
+  }
+}).keyup(function(evt) {
+  if (evt.which == 17) { // ctrl
+    ctrlPressed = false;
+  }
+});	
 
  var container = document.getElementById('containerMap');	
 
@@ -401,7 +412,7 @@ function changeView(value){
 		$('body').addClass('blackBack');
 
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
-		changeColor('blue');
+		changeColor('blue', true);
 		//changeOpacity('white');
 		movement({ 'x': cameraPositionSide.x, 'y': cameraPositionSide.y, 'z': cameraPositionSide.z }, camera.position, 0, timeElapsed*2); //camera.position.set( -24, -164, 59 );
 		//console.log(mesh);
@@ -422,7 +433,7 @@ function changeView(value){
 		$('#selectColor').removeClass('transparetBack');
 
 		removeLights();
-		changeColor('white');
+		changeColor('white', true);
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
 		$('body').removeClass('blackBack');
 		$('body').addClass('whiteBack');
@@ -548,33 +559,6 @@ function changeAmount(value){
 	//movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': actualAmount }, mesh.scale, 0, 1000);
 }
 
-function changeColor(value){
-	var len = group.children.length;
-	for(var a = 0; a<len; a++){
-		if(value == 'blue') {
-			var red = 0.5;
-			var blue = 0.7;
-			var green = 0.5;
-		}
-		else if(value == 'white'){
-			var red = 1;
-			var blue = 1;
-			var green = 1;
-		}
-		else{
-			var colorHex = Math.random();
-			var red = colorHex;
-			var blue = 1-colorHex;
-			var green = colorHex;
-		}
-		group.children[a].originalColor = { 'r': red, 'g': green, 'b': blue };
-		if(!group.children[a].active) movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[0].color, 0, 1000);
-		movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[1].color, 0, 1000);
-		group.children[a].material.materials[0].needsUpdate = true;
-	}
-	//movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': actualAmount }, mesh.scale, 0, 1000);
-}
-
 function changeOpacity(value){
 	if(value == 'white') var actualOpacity = 0.3;
 	else var actualOpacity = 1;
@@ -670,9 +654,11 @@ function onDocumentMouseDown( event ) {
 
 	var intersects = raycaster.intersectObjects( group.children );
 
-	if ( intersects.length > 0 ) {
+	if ( intersects.length > 0 && ctrlCount<3 ) {
 
-		if( SELECTED != undefined ) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
+		if(ctrlPressed)ctrlCount = ctrlCount + 1;
+
+		if( SELECTED != undefined && !ctrlPressed ) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
 
 		controls.enabled = false;
 
@@ -682,7 +668,7 @@ function onDocumentMouseDown( event ) {
 
 		var intersects = raycaster.intersectObject( plane );
 
-		removeLines();
+		if(!ctrlPressed) removeLines();
 
 		var numberOfLines = Math.floor((Math.random() * 30) + 5);
 		var maxLines = group.children.length;
@@ -695,9 +681,11 @@ function onDocumentMouseDown( event ) {
 		SELECTED.material.materials[0].color.setRGB(0.5,1,0.5);
 		SELECTED.active = true;
 
-		document.getElementById("infoPanelSelected").innerHTML = SELECTED.name;
-		$('#infoPanelSelected').removeClass('hideLeft');
-		$('#legends').removeClass('hideLeft');
+		var selectLabel = "infoPanelSelected"+ctrlCount.toString();
+
+		document.getElementById(selectLabel).innerHTML = SELECTED.name;
+		$('#'+selectLabel).removeClass('noneDisplay');
+		$('#infoPanelSelectedGroup').removeClass('hideLeft');
 			
 		//SELECTED.position.set(mouse.x, mouse.y, 0.1)
 		//offset.copy( intersects[ 0 ].point ).sub( plane.position );
@@ -719,13 +707,25 @@ function onDocumentDBClick( event ) {
 	if ( intersects.length > 0 ) {
 	}
 	else {
+		ctrlCount = 0;
 		if(SELECTED != undefined) { SELECTED.material.materials[0].color.setRGB(SELECTED.originalColor.r, SELECTED.originalColor.g, SELECTED.originalColor.b); SELECTED.active = false; }
+		changeColor('white', true);
 		removeLines();
 		$('body').removeClass('blackBack');
 		$('body').addClass('whiteBack');
-		document.getElementById("infoPanelSelected").innerHTML = '';
-		$('#infoPanelSelected').addClass('hideLeft');
-		$('#legends').addClass('hideLeft');
+
+		document.getElementById("backW").checked = true;
+		document.getElementById("backD").checked = false;
+
+		document.getElementById("infoPanelSelected0").innerHTML = '';
+		document.getElementById("infoPanelSelected1").innerHTML = '';
+		document.getElementById("infoPanelSelected2").innerHTML = '';
+		document.getElementById("infoPanelSelected3").innerHTML = '';
+		$('#infoPanelSelected1').addClass('noneDisplay');
+		$('#infoPanelSelected2').addClass('noneDisplay');
+		$('#infoPanelSelected3').addClass('noneDisplay');
+
+		$('#infoPanelSelectedGroup').addClass('hideLeft');
 	}
 
 }
@@ -743,10 +743,42 @@ function onDocumentMouseUp( event ) {
 	}
 }
 
+function changeColor(value, activaChangePermission){
+
+	console.log(activaChangePermission);
+	var len = group.children.length;
+	for(var a = 0; a<len; a++){
+		if(value == 'blue') {
+			var red = 0.5;
+			var blue = 0.7;
+			var green = 0.5;
+		}
+		else if(value == 'white'){
+			var red = 1;
+			var blue = 1;
+			var green = 1;
+		}
+		else{
+			var colorHex = Math.random();
+			var red = colorHex;
+			var blue = 1-colorHex;
+			var green = colorHex;
+		}
+		group.children[a].originalColor = { 'r': red, 'g': green, 'b': blue };
+		if(!group.children[a].active || activaChangePermission) movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[0].color, 0, 1000);
+		movement( { 'r': red, 'g': green, 'b': blue }, group.children[a].material.materials[1].color, 0, 1000);
+		group.children[a].material.materials[0].needsUpdate = true;
+	}
+	//movement( { 'x':scale_factor * scale_x, 'y': scale_factor * scale_y, 'z': actualAmount }, mesh.scale, 0, 1000);
+}
+
 function addLinesRed(value1, value2){
 
 	$('body').removeClass('whiteBack');
 	$('body').addClass('blackBack');
+
+	document.getElementById("backW").checked = false;
+	document.getElementById("backD").checked = true;
 
 	if(actualCity == 'europe' || actualCity == 'spain') { reScaleGroup = 100000;  }
 	else if(actualCity == 'world') { reScaleGroup = 1000;  }
@@ -760,7 +792,7 @@ function addLinesRed(value1, value2){
 
 	var spline = new THREE.SplineCurve3([
 				   new THREE.Vector3(firstPoint.x ,firstPoint.y ,2 ),
-				   new THREE.Vector3(((firstPoint.x+endPoint.x)/2), (firstPoint.y+endPoint.y)/2, 20 ),
+				   new THREE.Vector3(((firstPoint.x+endPoint.x)/2), (firstPoint.y+endPoint.y)/2, 30 ),
 				   new THREE.Vector3(endPoint.x ,endPoint.y ,2 )
 				]);
 
@@ -785,9 +817,9 @@ function addLinesRed(value1, value2){
 	var line2 = new THREE.Line(geometry3, material3);
 
 	//PARTICULAS -----------------------
-	var particlesize = Math.floor((Math.random() * 500) + 200);
+	var particlesize = Math.floor((Math.random() * 700) + 200);
 	var particleColor = Math.floor((Math.random() * 255) + 0);
-	var particleVelocity = Math.floor((Math.random() * 20) + 1);
+	var particleVelocity = Math.floor((Math.random() * 30) + 1);
 	var particleOpacity = Math.random();
 
 	if(actualCity == 'europe' || actualCity == 'spain') particlesize = particlesize * 55;
@@ -844,7 +876,7 @@ function addLinesBlue(value1, value2){
 
 	var spline = new THREE.SplineCurve3([
 				   new THREE.Vector3(firstPoint.x ,firstPoint.y ,2 ),
-				   new THREE.Vector3(((firstPoint.x+endPoint.x)/2), (firstPoint.y+endPoint.y)/2, 20 ),
+				   new THREE.Vector3(((firstPoint.x+endPoint.x)/2), (firstPoint.y+endPoint.y)/2, 30 ),
 				   new THREE.Vector3(endPoint.x ,endPoint.y ,2 )
 				]);
 
@@ -871,9 +903,9 @@ function addLinesBlue(value1, value2){
 	var count = 200;
 
 	//PARTICULAS -----------------------
-	var particlesize = Math.floor((Math.random() * 500) + 200);
+	var particlesize = Math.floor((Math.random() * 700) + 200);
 	var particleColor = Math.floor((Math.random() * 255) + 0);
-	var particleVelocity = Math.floor((Math.random() * 20) + 1);
+	var particleVelocity = Math.floor((Math.random() * 30) + 1);
 	var particleOpacity = Math.random();
 
 	if(actualCity == 'europe' || actualCity == 'spain') particlesize = particlesize * 55;
@@ -931,7 +963,7 @@ function removeLines(){
 }
 
 function dataFlowVisbility(type, status) {
-	console.log(type, status);
+	console.log(type, status, ctrlPressed);
 	if(type == 'red') lineRedGroup.visible = status;
 	else if( type == 'blue' ) lineBlueGroup.visible = status;
 }
