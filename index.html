@@ -71,12 +71,18 @@
 		<div id="infoPanelSelected" class="infoPanelSelected hideLeft"></div>
 		<div id="legends" class="legends hideLeft">
 			<div class="legendBand">
+				<div id="selectBackColor" class="dataFlowSelect">
+					<input id="flowImport" type="checkbox" name="importSelect" onchange="dataFlowVisbility('blue', this.checked)" value="" checked>
+					<label for="flowImport" class="importText">Imports</label>
+				</div>
 				<div class="importColor"></div>
-				<div class="importText">Imports</div>
 			</div>
 			<div class="legendBand">
+				<div id="selectBackColor" class="dataFlowSelect">
+					<input id="flowExport" type="checkbox" name="exportSelect" onchange="dataFlowVisbility('red', this.checked)" value="" checked>
+					<label for="flowExport" class="exportText">Exports</label>
+				</div>
 				<div class="exportColor"></div>
-				<div class="exportText">Exports</div>
 			</div>
 		</div>
 		<div id="containerMap"></div>

@@ -14,7 +14,8 @@ var actualCity, actualAmount = 1;
 var reScaleGroup = 1;
 
 var lightGroup = new THREE.Object3D();
-var lineGroup = new THREE.Object3D();
+var lineRedGroup = new THREE.Object3D();
+var lineBlueGroup = new THREE.Object3D();
 var centersGroup = new THREE.Object3D();
 
 var cameraPositionPan, cameraPositionSide, cameraTarget;
@@ -791,7 +792,7 @@ function addLinesRed(value1, value2){
 
 	if(actualCity == 'europe' || actualCity == 'spain') particlesize = particlesize * 55;
 
-	var textureGlass = THREE.ImageUtils.loadTexture( "images/particles/Static/Glows/glow.png" );
+	var textureGlass = THREE.ImageUtils.loadTexture( "images/particles/Static/Glows/Flare4.png" );
 	//var textureGlass = THREE.ImageUtils.loadTexture( "../images/particles/Static/Smoke/Plume.png" );
 	var spriteMaterialGlass = new THREE.SpriteMaterial( 
 	    { 	
@@ -811,18 +812,20 @@ function addLinesRed(value1, value2){
 
 	 }, particleVelocity);   	
 				
-	lineGroup.add(spriteGlass);
+	lineRedGroup.add(spriteGlass);
+
+	lineRedGroup.name = 'exportsLines';
 
 	//----------------------------------------
 
-	lineGroup.add(line2);
+	lineRedGroup.add(line2);
 
-	lineGroup.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);	
+	lineRedGroup.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);	
 
-	lineGroup.rotation.x = Math.PI / 2;
-	lineGroup.rotation.y = Math.PI;
+	lineRedGroup.rotation.x = Math.PI / 2;
+	lineRedGroup.rotation.y = Math.PI;
 
-	scene.add(lineGroup);
+	scene.add(lineRedGroup);
 }
 
 function addLinesBlue(value1, value2){
@@ -896,27 +899,41 @@ function addLinesBlue(value1, value2){
 
 	 }, particleVelocity);   	
 				
-	lineGroup.add(spriteGlass);
+	lineBlueGroup.add(spriteGlass);
 
 	//----------------------------------------
 
-	lineGroup.add(line2);
+	lineBlueGroup.add(line2);
 
-	lineGroup.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);	
+	lineBlueGroup.name = 'importsLines';
 
-	lineGroup.rotation.x = Math.PI / 2;
-	lineGroup.rotation.y = Math.PI;
+	lineBlueGroup.scale.set((scale_factor * scale_x)/reScaleGroup,(scale_factor * scale_y)/reScaleGroup, actualAmount);	
 
-	scene.add(lineGroup);
+	lineBlueGroup.rotation.x = Math.PI / 2;
+	lineBlueGroup.rotation.y = Math.PI;
+
+	scene.add(lineBlueGroup);
 }
 
 function removeLines(){
-	if(lineGroup.children.length > 0){
-		for( var i = lineGroup.children.length - 1; i >= 0; i--) { 
-			lineGroup.remove(lineGroup.children[i]);
+	if(lineBlueGroup.children.length > 0){
+		for( var i = lineBlueGroup.children.length - 1; i >= 0; i--) { 
+			lineBlueGroup.remove(lineBlueGroup.children[i]);
 		}
-		scene.remove(lineGroup);
+		scene.remove(lineBlueGroup);
 	}
+	if(lineRedGroup.children.length > 0){
+		for( var i = lineRedGroup.children.length - 1; i >= 0; i--) { 
+			lineRedGroup.remove(lineRedGroup.children[i]);
+		}
+		scene.remove(lineRedGroup);
+	}
+}
+
+function dataFlowVisbility(type, status) {
+	console.log(type, status);
+	if(type == 'red') lineRedGroup.visible = status;
+	else if( type == 'blue' ) lineBlueGroup.visible = status;
 }
 
 
