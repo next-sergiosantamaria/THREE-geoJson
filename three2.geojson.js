@@ -417,7 +417,7 @@ function changeView(value){
 		$('body').removeClass('whiteBack');
 		$('body').addClass('blackBack');
 
-		if(actualCity == 'abudhabi') document.getElementById("frontiers").innerHTML = 'Specific locals comerce Activity';
+		if(actualCity == 'abudhabi') document.getElementById("frontiers").innerHTML = 'Specific local comerce Activity';
 		else document.getElementById("frontiers").innerHTML = 'Frontiers activity';
 
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
