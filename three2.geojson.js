@@ -559,6 +559,11 @@ function calculateCenters(){
 
 function changeAmount(value){
 	removeLines();
+
+	$('body').removeClass('blackBack');
+	$('body').addClass('whiteBack');
+	$('#infoPanelSelectedGroup').addClass('hideLeft');
+
 	if(value == 'age') actualAmount = 0.3;
 	else if(value == 'incomes') actualAmount = 0.5;
 	else if(value == 'none') actualAmount = 1;
@@ -668,8 +673,6 @@ function onDocumentMouseDown( event ) {
 
 	if(actualCity != 'abudhabi'){
 
-		changeAmount('none');
-
 		event.preventDefault();
 
 		raycaster.setFromCamera( mouse, camera );
@@ -677,6 +680,12 @@ function onDocumentMouseDown( event ) {
 		var intersects = raycaster.intersectObjects( group.children );
 
 		if ( intersects.length > 0 && ctrlCount<3 ) {
+
+			changeAmount('none');
+
+			document.getElementById("amountAge").checked = false;
+			document.getElementById("amountIncomes").checked = false;
+			document.getElementById("amountNone").checked = true;
 
 			if(ctrlPressed)ctrlCount = ctrlCount + 1;
 
