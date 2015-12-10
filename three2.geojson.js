@@ -223,7 +223,7 @@ function buildShape(){
 					}
 					if(good){
 						var h = heightFn(0.1);
-						var z = ((h/max)*z_max);
+						var z = ((h/max)*z_max)+Math.floor((Math.random() * 10) + 1);
 						if(!z || z<1){z = 0;}
 						var red = Math.round((h/max)*255.0);
 						var blue = Math.round(255.0-(h/max)*255.0);
@@ -250,7 +250,7 @@ function buildShape(){
 								}
 								if(good){	
 									var h = heightFn(0.1);
-									var z = ((h/max)*z_max);
+									var z = ((h/max)*z_max)+Math.floor((Math.random() * 10) + 1);
 									if(!z || z<1){z = 0;}
 									var red = Math.round((h/max)*255.0);
 									var blue = Math.round(255.0-(h/max)*255.0);
@@ -284,6 +284,8 @@ function buildShape(){
 		directionalLight.target = mesh;
 		directionalLight.castShadow = true;
 		directionalLight.shadowDarkness = 0.5;
+		directionalLight.shadowMapWidth = 1024; // default is 512
+		directionalLight.shadowMapHeight = 1024; // default is 512
 		directionalLight.name = 'luzDireccional'
 		scene.add( directionalLight );
 
@@ -394,6 +396,10 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s, name ) {
 function changeView(value){
 	var timeElapsed = 1000;
 	if(value == 'onFloor'){//transparetBack
+
+		$('#frontiers').removeClass('hideLeft');
+		$('#infoPanelSelectedGroup').addClass('hideLeft');
+
 		document.getElementById("amountAge").disabled = true;
 		document.getElementById("amountIncomes").disabled = true;
 		document.getElementById("colorAge").disabled = true;
@@ -413,8 +419,6 @@ function changeView(value){
 
 		if(actualCity == 'abudhabi') document.getElementById("frontiers").innerHTML = 'Specific locals comerce Activity';
 		else document.getElementById("frontiers").innerHTML = 'Frontiers activity';
-
-		$('#frontiers').removeClass('hideLeft');
 
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
 		changeColor('blue', true);
@@ -440,6 +444,8 @@ function changeView(value){
 		$('#frontiers').addClass('hideLeft');
 
 		removeLights();
+		removeLines();
+
 		changeColor('white', true);
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
 		$('body').removeClass('blackBack');
@@ -552,7 +558,7 @@ function calculateCenters(){
 }
 
 function changeAmount(value){
-	removeLines()
+	removeLines();
 	if(value == 'age') actualAmount = 0.3;
 	else if(value == 'incomes') actualAmount = 0.5;
 	else if(value == 'none') actualAmount = 1;

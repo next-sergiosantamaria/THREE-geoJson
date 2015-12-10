@@ -139,11 +139,17 @@
 
 				changeCity = function(value){
 
+					$('body').removeClass('blackBack');
+					$('body').addClass('whiteBack');
+
 					$('#loading').removeClass('transparetBack');
 					$('#loading').addClass('whiteBack');
 
 					$('#welcome').addClass('hideScreen');
 					$('#welcome').addClass('removeScreen');
+
+					$('#frontiers').addClass('hideLeft');
+					$('#infoPanelSelectedGroup').addClass('hideLeft');
 
 					console.log('change city: ', value);
 					jsonFile = "data/"+value+".geo.json";
