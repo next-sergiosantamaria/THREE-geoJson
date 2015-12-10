@@ -668,6 +668,8 @@ function onDocumentMouseDown( event ) {
 
 	if(actualCity != 'abudhabi'){
 
+		changeAmount('none');
+
 		event.preventDefault();
 
 		raycaster.setFromCamera( mouse, camera );
