@@ -84,12 +84,6 @@ function init() {
 
 	scene = new THREE.Scene();
 
-	/*var boxgeometry = new THREE.BoxGeometry(5,5,5);
-	var boxmaterial = new THREE.MeshLambertMaterial({color: 0x333333});
-	var box = new THREE.Mesh( boxgeometry, boxmaterial );
-	box.position.set( 100, 0, 4);
-	scene.add(box);*/
-
 	camera = new THREE.PerspectiveCamera( 50, (width/height), 0.1, 10000000 );
 	//camera.position.set( -20, -14, 177 );
 
@@ -354,8 +348,8 @@ function addShape( shape, extrude, color, x, y, z, rx, ry, rz, s, name ) {
 			attributes: 	{},
 			uniforms:		{},
 			vertexShader:   THREETUT.Shaders.Lit.vertex,
-		    fragmentShader: THREETUT.Shaders.Lit.fragment
-		    ,side: THREE.FrontSide
+		    fragmentShader: THREETUT.Shaders.Lit.fragment,
+		    side: THREE.FrontSide
 	});
 		
 	var materials = [
@@ -444,7 +438,7 @@ function changeView(value){
 		$('#frontiers').addClass('hideLeft');
 
 		removeLights();
-		removeLines();
+		//removeLines();
 
 		changeColor('white', true);
 		controls.target.set( group.position.x+cameraTarget.x, cameraTarget.y, group.position.z+cameraTarget.z );
@@ -681,7 +675,9 @@ function onDocumentMouseDown( event ) {
 
 		if ( intersects.length > 0 && ctrlCount<3 ) {
 
-			changeAmount('none');
+			console.log('control presed: ',ctrlPressed);
+
+			if(actualAmount != 1) changeAmount('none');
 
 			document.getElementById("amountAge").checked = false;
 			document.getElementById("amountIncomes").checked = false;
@@ -979,6 +975,8 @@ function addLinesBlue(value1, value2){
 }
 
 function removeLines(){
+	console.log('se ejecuta remove lines');
+	ctrlCount = 0;
 	if(lineBlueGroup.children.length > 0){
 		for( var i = lineBlueGroup.children.length - 1; i >= 0; i--) { 
 			lineBlueGroup.remove(lineBlueGroup.children[i]);
